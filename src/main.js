@@ -1,43 +1,4 @@
-const Paragraph = {
-    render: (block) => {
-        const el = document.createElement("div")
-        el.dataset.id = crypto.randomUUID()
-        el.contentEditable = true
-
-        block.text.forEach(t => {
-            const span = document.createElement("span")
-            span.appendChild(document.createTextNode(t.text))
-            if (t.bold) span.classList.add("bold")
-            el.appendChild(span)
-        })
-
-        return el;
-    },
-}
-
-
-const List = {
-    render: (block) => {
-        const wrapper = document.createElement(block.ordered ? "ol" : "ul")
-
-        block.items.forEach(item => {
-            const li = document.createElement("li")
-            li.dataset.id = crypto.randomUUID()
-            li.contentEditable = true
-
-            item.forEach(t => {
-                const span = document.createElement("span")
-                span.appendChild(document.createTextNode(t.text))
-                if (t.bold) span.classList.add("bold")
-                li.appendChild(span)
-            })
-
-            wrapper.appendChild(li)
-        })
-
-        return wrapper;
-    },
-}
+import Renderer from "./renderer"
 
 class Editor {
     constructor(editorElement) {
@@ -58,6 +19,19 @@ class Editor {
                     [{ text: "This is" }, { text: " Step two", "bold": true }]
                 ]
             },
+            {
+                "type": "image",
+                "src": "https://picsum.photos/id/237/200/300",
+                "alt": "An example image"
+            },
+            {
+                "type": "table",
+                "rows": [
+                    [[{ "text": "Name", "bold": true }], [{ "text": "Age", "bold": true }]],
+                    [[{ "text": "Alice" }], [{ "text": "24" }]],
+                    [[{ "text": "Bob" }]]
+                ]
+            }
         ]
 
         this.render()
@@ -69,11 +43,19 @@ class Editor {
             let el;
 
             if (block.type == "paragraph") {
-                el = Paragraph.render(block)
+                el = Renderer.paragraph(block)
             }
 
             if (block.type == "list") {
-                el = List.render(block)
+                el = Renderer.list(block)
+            }
+
+            if (block.type == "image") {
+                el = Renderer.image(block);
+            }
+
+            if (block.type == "table") {
+                el = Renderer.table(block);
             }
 
             this.editorElement.appendChild(el)
