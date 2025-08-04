@@ -2,15 +2,15 @@
   "name": "blockmark",
   "version": "1.0.0",
   "description": "Block based rich text editor",
-  "main": "dist/main.js",
-  "source": "src/main.js",
+  "main": "index.js",
   "scripts": {
-    "watch": "parcel watch",
-    "build": "parcel build"
+    "dev": "vite",
+    "build": "vite build"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "vite": "^6.3.5"
   }
 }
