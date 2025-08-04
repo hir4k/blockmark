@@ -1,0 +1,16 @@
+{
+  "name": "blockmark",
+  "version": "1.0.0",
+  "description": "Block based rich text editor",
+  "main": "dist/main.js",
+  "source": "src/main.js",
+  "scripts": {
+    "watch": "parcel watch",
+    "build": "parcel build"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.15.4"
+  }
+}
