@@ -18,7 +18,6 @@ export default class View {
         };
         this.setupEditorStructure();
         this.renderToolbar();
-        this.createInitialBlock();
     }
 
     /**
@@ -28,19 +27,42 @@ export default class View {
         // Create toolbar container
         this.toolbarContainer = document.createElement('div');
         this.toolbarContainer.className = 'bmark-toolbar-container';
+        this.toolbarContainer.style.cssText = `
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        `;
         this.holder.appendChild(this.toolbarContainer);
 
         // Create content area
         this.contentArea = document.createElement('div');
         this.contentArea.className = 'bmark-content-area';
+        this.contentArea.style.cssText = `
+            padding: 1em;
+            min-height: 200px;
+        `;
+        // Add list styles for lists inside contentArea
+        const style = document.createElement('style');
+        style.textContent = `
+            .bmark-content-area ul {
+                list-style-type: disc;
+                margin-left: 1.2em;
+            }
+            .bmark-content-area ol {
+                list-style-type: decimal;
+                margin-left: 1.2em;
+            }
+        `;
+        this.holder.appendChild(style);
         this.holder.appendChild(this.contentArea);
-    }
 
-    /**
-     * Creates the initial paragraph block
-     */
-    createInitialBlock() {
-        this.addBlock('paragraph');
+        // Add border to the entire editor
+        this.holder.style.cssText = `
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            overflow: hidden;
+        `;
     }
 
     /**

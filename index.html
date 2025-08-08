@@ -3,104 +3,13 @@
 
 <head>
     <meta charset="UTF-8" />
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-        }
-
-        #editor {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: visible;
-        }
-
-        .editor-block {
-            margin: 0;
-            padding: 8px 16px;
-            border: none;
-            outline: none;
-            min-height: 24px;
-        }
-
-        .paragraph-block {
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
-        .list-block {
-            margin: 8px 0;
-        }
-
-        .list-block li {
-            margin: 4px 0;
-            line-height: 1.6;
-        }
-
-        .list-block ul,
-        .list-block ol {
-            margin: 0;
-            padding-left: 24px;
-        }
-
-        .test-buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .test-buttons button {
-            background: #334155;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 0 10px;
-        }
-
-        .test-buttons button:hover {
-            background: #475569;
-        }
-
-        .result-display {
-            max-width: 800px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-
-        .result-display h3 {
-            margin-top: 0;
-            color: #334155;
-        }
-
-        .result-display pre {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 16px;
-            overflow-x: auto;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #334155;
-        }
-
-        .result-display.hidden {
-            display: none;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body>
-    <div id="editor"></div>
+    <div class="p-4">
+        <div id="editor"></div>
+    </div>
 
     <div class="test-buttons">
         <button onclick="saveEditor()">Save Editor</button>
