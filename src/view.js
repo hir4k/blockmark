@@ -1,4 +1,4 @@
-import { BlockRegistry } from './blocks/BlockRegistry.js';
+import { BlockRegistry } from './blocks/index.js';
 import { Paragraph } from './blocks/paragraph.js';
 import { List } from './blocks/list.js';
 
@@ -270,7 +270,7 @@ export default class View {
 
             // Click handler
             menuItem.addEventListener('click', () => {
-                this.addBlock(block.type, block.data);
+                this.addBlock(block.type, block.defaultData);
                 this.toggleMenu();
             });
 

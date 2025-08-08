@@ -1,3 +1,6 @@
+import { Paragraph } from './paragraph.js';
+import { List } from './list.js';
+
 /**
  * Centralized registry for all available blocks
  * This prevents typos and makes it easy to manage block definitions
@@ -5,31 +8,13 @@
 export class BlockRegistry {
     static blocks = {
         paragraph: {
-            name: 'Paragraph',
-            type: 'paragraph',
-            icon: `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="2" rx="1" fill="#ffffff"/><rect x="3" y="8" width="10" height="2" rx="1" fill="#ffffff"/><rect x="3" y="12" width="7" height="2" rx="1" fill="#ffffff"/></svg>`,
-            data: {
-                text: []
-            }
+            name: Paragraph.name,
+            type: Paragraph.type,
+            icon: Paragraph.icon,
+            defaultData: Paragraph.defaultData
         },
-        unorderedList: {
-            name: 'Bullet List',
-            type: 'list',
-            icon: `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="6" cy="10" r="2" fill="#ffffff"/><rect x="10" y="9" width="7" height="2" rx="1" fill="#ffffff"/></svg>`,
-            data: {
-                ordered: false,
-                items: []
-            }
-        },
-        orderedList: {
-            name: 'Numbered List',
-            type: 'list',
-            icon: `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><text x="4" y="12" font-size="8" fill="#ffffff">1.</text><rect x="10" y="9" width="7" height="2" rx="1" fill="#ffffff"/></svg>`,
-            data: {
-                ordered: true,
-                items: []
-            }
-        }
+        unorderedList: List.getUnorderedList(),
+        orderedList: List.getOrderedList()
     };
 
     /**
@@ -75,4 +60,7 @@ export class BlockRegistry {
         const block = this.getBlock(key);
         return block ? block.type : null;
     }
-} 
+}
+
+// Export individual blocks for direct access
+export { Paragraph, List }; 

@@ -1,4 +1,10 @@
 export class Paragraph {
+    // Static metadata for block registry
+    static type = 'paragraph';
+    static name = 'Paragraph';
+    static icon = `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="2" rx="1" fill="#ffffff"/><rect x="3" y="8" width="10" height="2" rx="1" fill="#ffffff"/><rect x="3" y="12" width="7" height="2" rx="1" fill="#ffffff"/></svg>`;
+    static defaultData = { text: [] };
+
     constructor({ data = {}, onEnter, onBackspace }) {
         this.data = data.text || [];
         this.onEnter = onEnter;

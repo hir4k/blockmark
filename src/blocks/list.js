@@ -1,4 +1,29 @@
 export class List {
+    // Static metadata for block registry
+    static type = 'list';
+    static name = 'List';
+    static icon = `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="6" cy="10" r="2" fill="#ffffff"/><rect x="10" y="9" width="7" height="2" rx="1" fill="#ffffff"/></svg>`;
+    static defaultData = { ordered: false, items: [] };
+
+    // Static methods to get specific list types
+    static getUnorderedList() {
+        return {
+            type: 'list',
+            name: 'Bullet List',
+            icon: `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="6" cy="10" r="2" fill="#ffffff"/><rect x="10" y="9" width="7" height="2" rx="1" fill="#ffffff"/></svg>`,
+            defaultData: { ordered: false, items: [] }
+        };
+    }
+
+    static getOrderedList() {
+        return {
+            type: 'list',
+            name: 'Numbered List',
+            icon: `<svg width="16" height="16" viewBox="0 0 20 20" fill="none"><text x="4" y="12" font-size="8" fill="#ffffff">1.</text><rect x="10" y="9" width="7" height="2" rx="1" fill="#ffffff"/></svg>`,
+            defaultData: { ordered: true, items: [] }
+        };
+    }
+
     constructor({ data = {}, onBackspace }) {
         this.data = {
             ordered: data.ordered || false,
