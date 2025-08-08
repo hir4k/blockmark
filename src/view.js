@@ -2,6 +2,7 @@ import { BlockRegistry } from './blocks/index.js';
 import { Paragraph } from './blocks/paragraph.js';
 import { List } from './blocks/list.js';
 import { Table } from './blocks/table.js';
+import { YouTube } from './blocks/youtube.js';
 
 export default class View {
     /**
@@ -14,7 +15,8 @@ export default class View {
         this.tools = {
             paragraph: Paragraph,
             list: List,
-            table: Table
+            table: Table,
+            youtube: YouTube
         };
         this.setupEditorStructure();
         this.renderToolbar();
@@ -61,7 +63,7 @@ export default class View {
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             background: white;
-            overflow: hidden;
+            overflow: visible;
         `;
     }
 
@@ -230,8 +232,6 @@ export default class View {
         dropdownContainer.className = 'bmark-dropdown-container';
         dropdownContainer.style.cssText = `
             position: absolute;
-            top: 100%;
-            left: 8px;
             z-index: 1001;
             display: none;
         `;
@@ -341,9 +341,13 @@ export default class View {
     }
 
     /**
-     * Opens the dropdown menu
-     */
+ * Opens the dropdown menu
+ */
     openMenu() {
+        // Position dropdown relative to the plus button
+        this.dropdownContainer.style.left = '8px';
+        this.dropdownContainer.style.top = '100%';
+
         this.dropdownContainer.style.display = 'block';
         this.isMenuOpen = true;
         this.plusButton.style.background = '#f1f5f9';

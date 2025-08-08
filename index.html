@@ -11,9 +11,16 @@
         <div id="editor"></div>
     </div>
 
-    <div class="test-buttons">
-        <button onclick="saveEditor()">Save Editor</button>
-        <button onclick="loadEditor()">Load Sample Data</button>
+    <div class="test-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
+        <button onclick="saveEditor()"
+            style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Save
+            Editor</button>
+        <button onclick="loadEditor()"
+            style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">Load
+            Sample Data</button>
+        <button onclick="loadYouTubeTest()"
+            style="padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
+            YouTube Block</button>
     </div>
 
     <div id="resultDisplay" class="result-display hidden">
@@ -73,6 +80,38 @@
             document.getElementById('resultDisplay').classList.add('hidden');
 
             alert('Sample data loaded!');
+        }
+
+        function loadYouTubeTest() {
+            const sampleData = [
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Here's a YouTube video:" }
+                    ]
+                },
+                {
+                    "type": "youtube",
+                    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "And another one:" }
+                    ]
+                },
+                {
+                    "type": "youtube",
+                    "url": ""
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+
+            // Hide the result display when loading new data
+            document.getElementById('resultDisplay').classList.add('hidden');
+
+            alert('YouTube test data loaded! You can edit the empty YouTube block by clicking on it.');
         }
     </script>
 </body>

@@ -1,6 +1,7 @@
 import { Paragraph } from './paragraph.js';
 import { List } from './list.js';
 import { Table } from './table.js';
+import { YouTube } from './youtube.js';
 
 /**
  * Centralized registry for all available blocks
@@ -21,6 +22,12 @@ export class BlockRegistry {
             type: Table.type,
             icon: Table.icon,
             defaultData: Table.defaultData
+        },
+        youtube: {
+            name: YouTube.name,
+            type: YouTube.type,
+            icon: YouTube.icon,
+            defaultData: YouTube.defaultData
         }
     };
 
@@ -70,4 +77,4 @@ export class BlockRegistry {
 }
 
 // Export individual blocks for direct access
-export { Paragraph, List, Table }; 
+export { Paragraph, List, Table, YouTube }; 
