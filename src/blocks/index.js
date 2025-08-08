@@ -1,5 +1,6 @@
 import { Paragraph } from './paragraph.js';
 import { List } from './list.js';
+import { Table } from './table.js';
 
 /**
  * Centralized registry for all available blocks
@@ -14,7 +15,13 @@ export class BlockRegistry {
             defaultData: Paragraph.defaultData
         },
         unorderedList: List.getUnorderedList(),
-        orderedList: List.getOrderedList()
+        orderedList: List.getOrderedList(),
+        table: {
+            name: Table.name,
+            type: Table.type,
+            icon: Table.icon,
+            defaultData: Table.defaultData
+        }
     };
 
     /**
@@ -63,4 +70,4 @@ export class BlockRegistry {
 }
 
 // Export individual blocks for direct access
-export { Paragraph, List }; 
+export { Paragraph, List, Table }; 

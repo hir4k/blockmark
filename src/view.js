@@ -1,6 +1,7 @@
 import { BlockRegistry } from './blocks/index.js';
 import { Paragraph } from './blocks/paragraph.js';
 import { List } from './blocks/list.js';
+import { Table } from './blocks/table.js';
 
 export default class View {
     /**
@@ -12,7 +13,8 @@ export default class View {
         this.blocks = [];
         this.tools = {
             paragraph: Paragraph,
-            list: List
+            list: List,
+            table: Table
         };
         this.setupEditorStructure();
         this.renderToolbar();
