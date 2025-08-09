@@ -11,7 +11,7 @@ export class Image {
         height: 'auto'
     };
 
-    constructor({ data = {}, onEnter, onBackspace }) {
+    constructor({ data = {}, onEnter, onBackspace, uploadFunction = null }) {
         this.data = {
             src: data.src || '',
             alt: data.alt || '',
@@ -21,6 +21,7 @@ export class Image {
         };
         this.onEnter = onEnter;
         this.onBackspace = onBackspace;
+        this.uploadFunction = uploadFunction;
         this.element = document.createElement('div');
         this.element.className = 'image-block';
         this.element.setAttribute('data-block-type', 'image');
@@ -180,19 +181,54 @@ export class Image {
     }
 
     _processImageFile(file) {
-        const reader = new FileReader();
+        // Show loading state
+        this._showLoading();
 
-        reader.onload = (e) => {
-            this.data.src = e.target.result;
-            this.data.alt = file.name;
-            this.render();
-        };
+        // If no upload function is provided, show error
+        if (!this.uploadFunction) {
+            this._hideLoading();
+            this._showError('No upload function configured. Please set up image upload.');
+            return;
+        }
 
-        reader.onerror = () => {
-            this._showError('Failed to read the image file.');
-        };
+        // Call the custom upload function
+        try {
+            const uploadPromise = this.uploadFunction(file);
 
-        reader.readAsDataURL(file);
+            if (uploadPromise && typeof uploadPromise.then === 'function') {
+                // Handle Promise-based upload function
+                uploadPromise
+                    .then(imageUrl => {
+                        if (imageUrl && typeof imageUrl === 'string') {
+                            this.data.src = imageUrl;
+                            this.data.alt = file.name;
+                            this._hideLoading();
+                            this.render();
+                        } else {
+                            throw new Error('Upload function must return a valid image URL');
+                        }
+                    })
+                    .catch(error => {
+                        this._hideLoading();
+                        this._showError(error.message || 'Upload failed');
+                    });
+            } else {
+                // Handle synchronous upload function
+                const imageUrl = uploadPromise;
+                if (imageUrl && typeof imageUrl === 'string') {
+                    this.data.src = imageUrl;
+                    this.data.alt = file.name;
+                    this._hideLoading();
+                    this.render();
+                } else {
+                    this._hideLoading();
+                    this._showError('Upload function must return a valid image URL');
+                }
+            }
+        } catch (error) {
+            this._hideLoading();
+            this._showError(error.message || 'Upload function error');
+        }
     }
 
     _renderImage(container) {
@@ -368,6 +404,59 @@ export class Image {
         setTimeout(() => {
             error.remove();
         }, 3000);
+    }
+
+    _showLoading() {
+        // Remove any existing loading indicator
+        this._hideLoading();
+
+        // Create loading indicator
+        const loading = document.createElement('div');
+        loading.className = 'image-upload-loading';
+        loading.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px;
+            color: #64748b;
+            font-size: 14px;
+        `;
+        loading.innerHTML = `
+            <div class="spinner" style="
+                width: 16px;
+                height: 16px;
+                border: 2px solid #e2e8f0;
+                border-top: 2px solid #3b82f6;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            "></div>
+            <span>Uploading image...</span>
+        `;
+
+        // Add CSS animation if not already present
+        if (!document.querySelector('#image-upload-styles')) {
+            const style = document.createElement('style');
+            style.id = 'image-upload-styles';
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Insert loading into container
+        const container = this.element.querySelector('div');
+        container.appendChild(loading);
+    }
+
+    _hideLoading() {
+        const loading = this.element.querySelector('.image-upload-loading');
+        if (loading) {
+            loading.remove();
+        }
     }
 
     save() {

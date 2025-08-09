@@ -11,7 +11,7 @@
         <div id="editor"></div>
     </div>
 
-    <div class="test-buttons" style="margin-top: 20px; display: flex; gap: 10px;">
+    <div class="test-buttons" style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
         <button onclick="saveEditor()"
             style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Save
             Editor</button>
@@ -24,6 +24,9 @@
         <button onclick="loadImageTest()"
             style="padding: 8px 16px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
             Image Block</button>
+        <button onclick="configureImageUpload()"
+            style="padding: 8px 16px; background: #ec4899; color: white; border: none; border-radius: 4px; cursor: pointer;">Configure
+            Image Upload</button>
     </div>
 
     <div id="resultDisplay" class="result-display hidden">
@@ -145,6 +148,35 @@
             document.getElementById('resultDisplay').classList.add('hidden');
 
             alert('Image test data loaded! Click on the image block to upload an image.');
+        }
+
+        function configureImageUpload() {
+            const uploadUrl = prompt('Enter your image upload API endpoint:', 'http://localhost:3001/api/upload-image');
+            if (uploadUrl) {
+                // Create a custom upload function
+                const customUploadFunction = async (file) => {
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    const response = await fetch(uploadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer your-token-here' // Add your auth headers
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    return result.url || result.imageUrl || result.src;
+                };
+
+                window.setImageUploadFunction(customUploadFunction);
+                alert('Image upload function updated! The next image upload will use your custom function.');
+            }
         }
     </script>
 </body>

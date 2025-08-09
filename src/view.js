@@ -8,11 +8,14 @@ import { Image } from './blocks/image.js';
 export default class View {
     /**
      * @param {HTMLElement | string} holder 
+     * @param {Object} options - Additional options for the view
+     * @param {Function} options.uploadFunction - Function to handle image uploads
      */
-    constructor(holder) {
+    constructor(holder, options = {}) {
         this.holder = typeof holder === "string" ? document.querySelector(holder) : holder;
         this.isMenuOpen = false;
         this.blocks = [];
+        this.uploadFunction = options.uploadFunction || null;
         this.tools = {
             paragraph: Paragraph,
             list: List,
@@ -84,7 +87,8 @@ export default class View {
 
         let blockInstance;
 
-        blockInstance = new Tool({
+        // Prepare constructor options
+        const constructorOptions = {
             data,
             onEnter: () => {
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
@@ -94,7 +98,14 @@ export default class View {
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
                 this.removeBlock(index);
             }
-        });
+        };
+
+        // Add upload function for Image blocks
+        if (type === 'image') {
+            constructorOptions.uploadFunction = this.uploadFunction;
+        }
+
+        blockInstance = new Tool(constructorOptions);
 
         const blockElement = blockInstance.render();
         blockElement.setAttribute('data-block-type', type);
