@@ -1,13 +1,34 @@
 {
   "name": "blockmark",
   "version": "1.0.0",
-  "description": "Block based rich text editor",
-  "main": "index.js",
+  "description": "Block based rich text editor library",
+  "main": "dist/blockmark.umd.js",
+  "module": "dist/blockmark.es.js",
+  "exports": {
+    ".": {
+      "types": "./dist/blockmark.d.ts",
+      "import": "./dist/blockmark.es.js",
+      "require": "./dist/blockmark.umd.js"
+    },
+    "./dist/blockmark.css": "./dist/blockmark.css"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "build:lib": "vite build --config vite.lib.config.js",
+    "prepublishOnly": "npm run build:lib"
   },
-  "keywords": [],
+  "keywords": [
+    "rich-text-editor",
+    "block-editor",
+    "wysiwyg",
+    "content-editor",
+    "markdown",
+    "blocks"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {

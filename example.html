@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockmark Editor Example</title>
+    <link rel="stylesheet" href="dist/blockmark.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1e40af;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        .btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .readonly {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Blockmark Editor</h1>
+            <p>A block-based rich text editor library</p>
+        </div>
+
+        <div class="content">
+            <div class="controls">
+                <button class="btn" onclick="saveContent()">Save Content</button>
+                <button class="btn" onclick="loadContent()">Load Content</button>
+                <button class="btn" onclick="getHTML()">Get HTML</button>
+                <button class="btn" onclick="toggleReadOnly()">Toggle Read-only</button>
+                <button class="btn" onclick="clearEditor()">Clear</button>
+                <button class="btn" onclick="addSampleContent()">Add Sample Content</button>
+            </div>
+
+            <div id="editor"></div>
+
+            <div class="output" id="output">Editor output will appear here...</div>
+        </div>
+    </div>
+
+    <script src="dist/blockmark.umd.js"></script>
+    <script>
+        // Initialize the editor
+        const editor = new BlockmarkEditor('#editor', {
+            uploadFunction: async (file) => {
+                // Simulate image upload
+                console.log('Uploading file:', file.name);
+
+                // In a real application, you would upload to your server
+                // For demo purposes, we'll return a placeholder URL
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve('https://via.placeholder.com/400x300/3b82f6/ffffff?text=Uploaded+Image');
+                    }, 1000);
+                });
+            }
+        });
+
+        // Sample content for demonstration 
+        const sampleContent = [
+            {
+                "type": "paragraph",
+                "text": [
+                    { "text": "Hello " },
+                    { "text": "World", "bold": true }
+                ]
+            },
+            {
+                "type": "list",
+                "ordered": false,
+                "items": [
+                    [{ "text": "Apple" }],
+                    [{ "text": "Banana", "italic": true }],
+                    [{ "text": "Orange" }]
+                ]
+            },
+            {
+                "type": "paragraph",
+                "text": [
+                    { "text": "This is a " },
+                    { "text": "test", "underline": true },
+                    { "text": " paragraph." }
+                ]
+            }
+        ];
+
+        // Control functions
+        function saveContent() {
+            const content = editor.save();
+            document.getElementById('output').textContent = JSON.stringify(content, null, 2);
+        }
+
+        function loadContent() {
+            const content = JSON.parse(document.getElementById('output').textContent || '[]');
+            editor.load(content);
+        }
+
+        function getHTML() {
+            const html = editor.getHTML();
+            document.getElementById('output').textContent = html;
+        }
+
+        function toggleReadOnly() {
+            const isReadOnly = editor.options.readOnly;
+            editor.setReadOnly(!isReadOnly);
+
+            const btn = event.target;
+            if (!isReadOnly) {
+                btn.textContent = 'Make Editable';
+                btn.classList.add('readonly');
+            } else {
+                btn.textContent = 'Toggle Read-only';
+                btn.classList.remove('readonly');
+            }
+        }
+
+        function clearEditor() {
+            editor.clear();
+            document.getElementById('output').textContent = 'Editor cleared!';
+        }
+
+        function addSampleContent() {
+            editor.load(sampleContent);
+            document.getElementById('output').textContent = 'Sample content loaded!';
+        }
+
+
+    </script>
+</body>
+
+</html>

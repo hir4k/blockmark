@@ -1,0 +1,222 @@
+/* Blockmark Editor Styles */
+
+.bmark-editor {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    overflow: visible;
+}
+
+.bmark-toolbar-container {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.bmark-content-area {
+    padding: 1em;
+    min-height: 200px;
+}
+
+.bmark-content-area ul {
+    list-style-type: disc;
+    margin-left: 1.2em;
+}
+
+.bmark-content-area ol {
+    list-style-type: decimal;
+    margin-left: 1.2em;
+}
+
+.bmark-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: relative;
+    z-index: 1000;
+}
+
+.bmark-plus-button {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bmark-plus-button:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.bmark-plus-button.active {
+    background: #f1f5f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bmark-dropdown-container {
+    position: absolute;
+    top: 100%;
+    left: 8px;
+    background: #1e293b;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1001;
+    min-width: 200px;
+    margin-top: 4px;
+}
+
+.bmark-dropdown-menu {
+    padding: 8px 0;
+}
+
+.bmark-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.bmark-menu-item:hover {
+    background: #333333;
+}
+
+.bmark-menu-item:not(:last-child) {
+    border-bottom: 1px solid #333333;
+}
+
+.bmark-block {
+    margin-bottom: 1em;
+    position: relative;
+}
+
+.bmark-block:last-child {
+    margin-bottom: 0;
+}
+
+.bmark-block-content {
+    outline: none;
+    min-height: 1.5em;
+}
+
+.bmark-block-content:empty::before {
+    content: attr(data-placeholder);
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+/* Read-only mode */
+.bmark-readonly .bmark-toolbar-container {
+    display: none;
+}
+
+.bmark-readonly .bmark-content-area {
+    pointer-events: none;
+}
+
+/* Block-specific styles */
+.bmark-paragraph {
+    line-height: 1.6;
+}
+
+.bmark-list {
+    margin: 0;
+    padding-left: 1.5em;
+}
+
+.bmark-list-item {
+    margin-bottom: 0.5em;
+}
+
+.bmark-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+.bmark-table th,
+.bmark-table td {
+    border: 1px solid #cbd5e1;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.bmark-table th {
+    background: #f8fafc;
+    font-weight: 600;
+}
+
+.bmark-youtube {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
+    margin: 1em 0;
+}
+
+.bmark-youtube iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+}
+
+.bmark-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+.bmark-image-container {
+    position: relative;
+    display: inline-block;
+}
+
+.bmark-image-upload {
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 2em;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+.bmark-image-upload:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+}
+
+.bmark-image-upload.dragover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .bmark-toolbar-container {
+        padding: 8px 12px;
+    }
+
+    .bmark-content-area {
+        padding: 0.75em;
+    }
+
+    .bmark-dropdown-container {
+        min-width: 180px;
+    }
+}

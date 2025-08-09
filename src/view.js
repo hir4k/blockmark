@@ -10,12 +10,16 @@ export default class View {
      * @param {HTMLElement | string} holder 
      * @param {Object} options - Additional options for the view
      * @param {Function} options.uploadFunction - Function to handle image uploads
+     * @param {boolean} options.readOnly - Whether the editor is read-only
+     * @param {Object} options.styles - Custom styling options
      */
     constructor(holder, options = {}) {
         this.holder = typeof holder === "string" ? document.querySelector(holder) : holder;
         this.isMenuOpen = false;
         this.blocks = [];
         this.uploadFunction = options.uploadFunction || null;
+        this.readOnly = options.readOnly || false;
+        this.styles = options.styles || {};
         this.tools = {
             paragraph: Paragraph,
             list: List,
@@ -24,52 +28,27 @@ export default class View {
             image: Image
         };
         this.setupEditorStructure();
-        this.renderToolbar();
+        if (!this.readOnly) {
+            this.renderToolbar();
+        }
     }
 
     /**
      * Sets up the editor structure with toolbar and content area
      */
     setupEditorStructure() {
+        // Add editor class to holder
+        this.holder.classList.add('bmark-editor');
+
         // Create toolbar container
         this.toolbarContainer = document.createElement('div');
         this.toolbarContainer.className = 'bmark-toolbar-container';
-        this.toolbarContainer.style.cssText = `
-            padding: 12px 16px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #f8fafc;
-        `;
         this.holder.appendChild(this.toolbarContainer);
 
         // Create content area
         this.contentArea = document.createElement('div');
         this.contentArea.className = 'bmark-content-area';
-        this.contentArea.style.cssText = `
-            padding: 1em;
-            min-height: 200px;
-        `;
-        // Add list styles for lists inside contentArea
-        const style = document.createElement('style');
-        style.textContent = `
-            .bmark-content-area ul {
-                list-style-type: disc;
-                margin-left: 1.2em;
-            }
-            .bmark-content-area ol {
-                list-style-type: decimal;
-                margin-left: 1.2em;
-            }
-        `;
-        this.holder.appendChild(style);
         this.holder.appendChild(this.contentArea);
-
-        // Add border to the entire editor
-        this.holder.style.cssText = `
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            background: white;
-            overflow: visible;
-        `;
     }
 
     /**
@@ -79,6 +58,11 @@ export default class View {
      * @param {number} afterIndex - Insert after this index (null for end)
      */
     addBlock(type, data = {}, afterIndex = null) {
+        // Don't add blocks in read-only mode
+        if (this.readOnly) {
+            return null;
+        }
+
         const Tool = this.tools[type];
         if (!Tool) {
             console.warn(`Unknown block type: ${type}`);
@@ -90,6 +74,7 @@ export default class View {
         // Prepare constructor options
         const constructorOptions = {
             data,
+            readOnly: this.readOnly,
             onEnter: () => {
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
                 this.addBlock(type, {}, index);
@@ -132,6 +117,11 @@ export default class View {
      * @param {number} index - The index of the block to remove
      */
     removeBlock(index) {
+        // Don't remove blocks in read-only mode
+        if (this.readOnly) {
+            return;
+        }
+
         if (this.blocks.length <= 1) return;
 
         const { instance } = this.blocks[index];
@@ -201,53 +191,21 @@ export default class View {
         // Create toolbar container
         const toolbar = document.createElement('div');
         toolbar.className = 'bmark-toolbar';
-        toolbar.style.cssText = `
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            position: relative;
-            z-index: 1000;
-        `;
 
         // Create plus button
         const plusButton = document.createElement('button');
         plusButton.type = 'button';
+        plusButton.className = 'bmark-plus-button';
         plusButton.innerHTML = `
             <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
                 <path d="M10 3v14M3 10h14" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
             </svg>
         `;
         plusButton.title = 'Add Block';
-        plusButton.style.cssText = `
-            background: white;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-
-        // Hover effects
-        plusButton.onmouseover = () => {
-            plusButton.style.background = '#f1f5f9';
-            plusButton.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-        };
-        plusButton.onmouseout = () => {
-            plusButton.style.background = 'white';
-            plusButton.style.boxShadow = 'none';
-        };
 
         // Create dropdown menu container
         const dropdownContainer = document.createElement('div');
         dropdownContainer.className = 'bmark-dropdown-container';
-        dropdownContainer.style.cssText = `
-            position: absolute;
-            z-index: 1001;
-            display: none;
-        `;
 
         // Create pointing arrow
         const arrow = document.createElement('div');
@@ -256,7 +214,7 @@ export default class View {
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-bottom: 8px solid #1a1a1a;
+            border-bottom: 8px solid #1e293b;
             margin-left: 12px;
             margin-bottom: -1px;
         `;
@@ -264,13 +222,6 @@ export default class View {
         // Create dropdown menu
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = 'bmark-dropdown-menu';
-        dropdownMenu.style.cssText = `
-            background: #1a1a1a;
-            border-radius: 8px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            min-width: 200px;
-            overflow: hidden;
-        `;
 
         // Get blocks from registry
         const blocks = BlockRegistry.getAllBlocks();
@@ -279,31 +230,12 @@ export default class View {
         blocks.forEach((block, index) => {
             const menuItem = document.createElement('div');
             menuItem.className = 'bmark-menu-item';
-            menuItem.style.cssText = `
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 12px 16px;
-                cursor: pointer;
-                transition: background 0.2s;
-                color: #ffffff;
-                font-size: 14px;
-                ${index < blocks.length - 1 ? 'border-bottom: 1px solid #333333;' : ''}
-            `;
             menuItem.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;">
                     ${block.icon}
                 </div>
                 <span>${block.name}</span>
             `;
-
-            // Hover effect
-            menuItem.onmouseover = () => {
-                menuItem.style.background = '#333333';
-            };
-            menuItem.onmouseout = () => {
-                menuItem.style.background = 'transparent';
-            };
 
             // Click handler
             menuItem.addEventListener('click', () => {
@@ -354,8 +286,8 @@ export default class View {
     }
 
     /**
- * Opens the dropdown menu
- */
+     * Opens the dropdown menu
+     */
     openMenu() {
         // Position dropdown relative to the plus button
         this.dropdownContainer.style.left = '8px';
@@ -363,8 +295,7 @@ export default class View {
 
         this.dropdownContainer.style.display = 'block';
         this.isMenuOpen = true;
-        this.plusButton.style.background = '#f1f5f9';
-        this.plusButton.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        this.plusButton.classList.add('active');
     }
 
     /**
@@ -373,7 +304,62 @@ export default class View {
     closeMenu() {
         this.dropdownContainer.style.display = 'none';
         this.isMenuOpen = false;
-        this.plusButton.style.background = 'white';
-        this.plusButton.style.boxShadow = 'none';
+        this.plusButton.classList.remove('active');
+    }
+
+    /**
+     * Set read-only mode
+     * @param {boolean} readOnly - Whether to make it read-only
+     */
+    setReadOnly(readOnly) {
+        this.readOnly = readOnly;
+
+        if (readOnly) {
+            // Add read-only class to editor
+            this.holder.classList.add('bmark-readonly');
+        } else {
+            // Remove read-only class from editor
+            this.holder.classList.remove('bmark-readonly');
+        }
+
+        // Update all blocks
+        this.blocks.forEach(block => {
+            if (block.instance && block.instance.setReadOnly) {
+                block.instance.setReadOnly(readOnly);
+            }
+        });
+    }
+
+    /**
+     * Get HTML content
+     * @returns {string} HTML string
+     */
+    getHTML() {
+        return this.contentArea.innerHTML;
+    }
+
+    /**
+     * Destroy the view and clean up
+     */
+    destroy() {
+        // Remove event listeners
+        if (this.plusButton) {
+            this.plusButton.removeEventListener('click', this.toggleMenu);
+        }
+
+        // Clear blocks
+        this.blocks.forEach(block => {
+            if (block.instance && block.instance.destroy) {
+                block.instance.destroy();
+            }
+        });
+
+        // Clear DOM
+        if (this.holder && this.holder.innerHTML) {
+            this.holder.innerHTML = '';
+        }
+
+        this.blocks = [];
+        this.isMenuOpen = false;
     }
 }
