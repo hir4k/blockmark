@@ -13,6 +13,8 @@ export class Paragraph {
         this.element.contentEditable = true;
         this.element.className = 'paragraph-block';
         this.element.setAttribute('data-block-type', 'paragraph');
+        this.pendingSplitData = null; // Store data for the next paragraph when splitting
+        this.pendingMergeData = null; // Store data for merging with previous paragraph
     }
 
     render() {
@@ -25,7 +27,7 @@ export class Paragraph {
         this.element.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                this.onEnter?.();
+                this._handleEnterKey();
             }
 
             if (e.key === 'Backspace') {
@@ -33,6 +35,18 @@ export class Paragraph {
                 if (text === '') {
                     e.preventDefault();
                     this.onBackspace?.();
+                } else {
+                    // Check if caret is at the beginning
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const caretOffset = this._getCaretOffset(range);
+
+                        if (caretOffset === 0) {
+                            e.preventDefault();
+                            this._handleBackspaceAtBeginning();
+                        }
+                    }
                 }
             }
         });
@@ -55,6 +69,91 @@ export class Paragraph {
         this._updateData();
 
         return this.element;
+    }
+
+    _handleEnterKey() {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+
+        const range = selection.getRangeAt(0);
+        const textContent = this.element.textContent;
+        const caretOffset = this._getCaretOffset(range);
+
+        // Check if caret is at the end of the text
+        if (caretOffset >= textContent.length) {
+            // Caret is at the end, do nothing (just create a new paragraph)
+            this.onEnter?.();
+            return;
+        }
+
+        // Caret is in the middle, split the paragraph
+        this._splitParagraphAtCaret(range, caretOffset);
+    }
+
+    _getCaretOffset(range) {
+        let offset = 0;
+        const walker = document.createTreeWalker(
+            this.element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        let node;
+        while (node = walker.nextNode()) {
+            if (node === range.startContainer) {
+                offset += range.startOffset;
+                break;
+            }
+            offset += node.textContent.length;
+        }
+
+        return offset;
+    }
+
+    _splitParagraphAtCaret(range, caretOffset) {
+        const textContent = this.element.textContent;
+
+        // Get text before and after the caret
+        const textBefore = textContent.substring(0, caretOffset);
+        const textAfter = textContent.substring(caretOffset);
+
+        // Update current paragraph with text before caret
+        this.element.textContent = textBefore;
+        this._updateData();
+
+        // Store the text after caret to be used in the new paragraph
+        if (textAfter.trim()) {
+            this.pendingSplitData = { text: [{ text: textAfter }] };
+        }
+
+        // Call onEnter to create a new paragraph
+        this.onEnter?.();
+    }
+
+    _handleBackspaceAtBeginning() {
+        // Store the current paragraph's text to be merged with the previous paragraph
+        const textContent = this.element.textContent;
+        if (textContent.trim()) {
+            this.pendingMergeData = { text: [{ text: textContent }] };
+        }
+
+        // Call onBackspace to remove the current paragraph
+        this.onBackspace?.();
+    }
+
+    // Method to get pending split data (called by the view)
+    getPendingSplitData() {
+        const data = this.pendingSplitData;
+        this.pendingSplitData = null;
+        return data;
+    }
+
+    // Method to get pending merge data (called by the view)
+    getPendingMergeData() {
+        const data = this.pendingMergeData;
+        this.pendingMergeData = null;
+        return data;
     }
 
     _renderText() {

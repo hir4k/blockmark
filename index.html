@@ -28,6 +28,9 @@
         <button onclick="configureImageUpload()"
             style="padding: 8px 16px; background: #ec4899; color: white; border: none; border-radius: 4px; cursor: pointer;">Configure
             Image Upload</button>
+        <button onclick="loadParagraphSplitTest()"
+            style="padding: 8px 16px; background: #06b6d4; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
+            Paragraph Split</button>
     </div>
 
     <div id="resultDisplay" class="result-display hidden">
@@ -178,6 +181,42 @@
                 window.setImageUploadFunction(customUploadFunction);
                 alert('Image upload function updated! The next image upload will use your custom function.');
             }
+        }
+
+        function loadParagraphSplitTest() {
+            const sampleData = [
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Hello world" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This is a test paragraph with some text that you can split." }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Place your cursor in the middle of this text and press Enter to split it into two paragraphs." }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This paragraph can be merged with the previous one using backspace at the beginning." }
+                    ]
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+
+            // Hide the result display when loading new data
+            document.getElementById('resultDisplay').classList.add('hidden');
+
+            alert('Paragraph split/merge test loaded!\n\nEnter key:\n- Place cursor in the middle of text and press Enter to split\n- Place cursor at the end and press Enter for new paragraph\n\nBackspace key:\n- Place cursor at the beginning and press Backspace to merge with previous paragraph\n- Place cursor in the middle/end and press Backspace for normal deletion');
         }
     </script>
 </body>

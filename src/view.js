@@ -79,13 +79,17 @@ export default class View {
             readOnly: this.readOnly,
             onEnter: () => {
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
-                this.addBlock(type, {}, index);
+                // Check if there's pending split data from the current paragraph
+                const pendingData = blockInstance.getPendingSplitData ? blockInstance.getPendingSplitData() : null;
+                this.addBlock(type, pendingData || {}, index);
             },
             onBackspace: () => {
                 // Find the block by its instance reference
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
                 if (index !== -1) {
-                    this.removeBlock(index);
+                    // Check if there's pending merge data from the current paragraph
+                    const pendingMergeData = blockInstance.getPendingMergeData ? blockInstance.getPendingMergeData() : null;
+                    this.removeBlock(index, pendingMergeData);
                 }
             }
         };
@@ -138,8 +142,9 @@ export default class View {
     /**
      * Remove a block from the editor
      * @param {number} index - The index of the block to remove
+     * @param {Object} mergeData - Data to merge with the previous paragraph (optional)
      */
-    removeBlock(index) {
+    removeBlock(index, mergeData = null) {
         // Don't remove blocks in read-only mode
         if (this.readOnly) {
             return;
@@ -166,30 +171,60 @@ export default class View {
             element.remove();
         }
 
-        this.blocks.splice(index, 1);
+        // Handle merge data if provided
+        if (mergeData && index > 0) {
+            const previousBlock = this.blocks[index - 1];
+            if (previousBlock && previousBlock.type === 'paragraph') {
+                // Merge the text with the previous paragraph
+                const previousText = previousBlock.instance.data || [];
+                const mergeText = mergeData.text || [];
 
-        // Update active block index
-        if (this.activeBlockIndex >= index) {
-            this.activeBlockIndex = Math.max(0, this.activeBlockIndex - 1);
-        }
+                // Combine the text arrays
+                const combinedText = [...previousText, ...mergeText];
+                previousBlock.instance.data = combinedText;
 
-        // Focus previous block and place caret at end
-        const previous = this.blocks[index - 1];
-        if (previous?.instance?.element?.focus) {
-            previous.instance.element.focus();
-            this.placeCaretAtEnd(previous.instance.element);
-            this.setActiveBlock(index - 1);
-        } else if (this.blocks.length > 0) {
-            // Focus the first block if no previous block
-            const firstBlock = this.blocks[0];
-            if (firstBlock?.instance?.element?.focus) {
-                firstBlock.instance.element.focus();
-                this.setActiveBlock(0);
+                // Update the previous paragraph's display
+                previousBlock.instance.element.innerHTML = previousBlock.instance._renderText();
+
+                // Focus the previous block and place caret at the end
+                previousBlock.instance.element.focus();
+                this.placeCaretAtEnd(previousBlock.instance.element);
+                this.setActiveBlock(index - 1);
+            } else {
+                // Previous block is not a paragraph, just focus it
+                if (previousBlock?.instance?.element?.focus) {
+                    previousBlock.instance.element.focus();
+                    this.placeCaretAtEnd(previousBlock.instance.element);
+                    this.setActiveBlock(index - 1);
+                }
             }
         } else {
-            // No blocks left, clear active block
-            this.setActiveBlock(-1);
+            // No merge data, handle normally
+            // Update active block index
+            if (this.activeBlockIndex >= index) {
+                this.activeBlockIndex = Math.max(0, this.activeBlockIndex - 1);
+            }
+
+            // Focus previous block and place caret at end
+            const previous = this.blocks[index - 1];
+            if (previous?.instance?.element?.focus) {
+                previous.instance.element.focus();
+                this.placeCaretAtEnd(previous.instance.element);
+                this.setActiveBlock(index - 1);
+            } else if (this.blocks.length > 0) {
+                // Focus the first block if no previous block
+                const firstBlock = this.blocks[0];
+                if (firstBlock?.instance?.element?.focus) {
+                    firstBlock.instance.element.focus();
+                    this.setActiveBlock(0);
+                }
+            } else {
+                // No blocks left, clear active block
+                this.setActiveBlock(-1);
+            }
         }
+
+        this.blocks.splice(index, 1);
     }
 
     /**
