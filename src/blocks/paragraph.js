@@ -37,6 +37,20 @@ export class Paragraph {
             }
         });
 
+        // Add paste event handler to convert HTML to plain text
+        this.element.addEventListener('paste', (e) => {
+            e.preventDefault();
+
+            // Get plain text from clipboard
+            const text = e.clipboardData.getData('text/plain');
+
+            // Normalize text: remove line breaks and extra whitespace
+            const normalizedText = text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+            // Insert the normalized plain text at cursor position
+            document.execCommand('insertText', false, normalizedText);
+        });
+
         // Parse the initial data to ensure it's in the correct format
         this._updateData();
 

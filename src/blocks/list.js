@@ -102,6 +102,20 @@ export class List {
             }
         });
 
+        // Add paste event handler to convert HTML to plain text
+        li.addEventListener('paste', (e) => {
+            e.preventDefault();
+
+            // Get plain text from clipboard
+            const text = e.clipboardData.getData('text/plain');
+
+            // Normalize text: remove line breaks and extra whitespace
+            const normalizedText = text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+            // Insert the normalized plain text at cursor position
+            document.execCommand('insertText', false, normalizedText);
+        });
+
         return li;
     }
 
