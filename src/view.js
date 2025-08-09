@@ -17,9 +17,11 @@ export default class View {
         this.holder = typeof holder === "string" ? document.querySelector(holder) : holder;
         this.isMenuOpen = false;
         this.blocks = [];
+        this.activeBlockIndex = -1; // Track the active block
         this.uploadFunction = options.uploadFunction || null;
         this.readOnly = options.readOnly || false;
         this.styles = options.styles || {};
+        this.title = options.title || null; // Add title option
         this.tools = {
             paragraph: Paragraph,
             list: List,
@@ -80,8 +82,11 @@ export default class View {
                 this.addBlock(type, {}, index);
             },
             onBackspace: () => {
+                // Find the block by its instance reference
                 const index = this.blocks.findIndex(b => b.instance === blockInstance);
-                this.removeBlock(index);
+                if (index !== -1) {
+                    this.removeBlock(index);
+                }
             }
         };
 
@@ -96,6 +101,21 @@ export default class View {
         blockElement.setAttribute('data-block-type', type);
         blockElement.classList.add('editor-block');
 
+        // Add event listeners to track active block
+        blockElement.addEventListener('click', () => {
+            const blockIndex = this.blocks.findIndex(b => b.instance === blockInstance);
+            if (blockIndex !== -1) {
+                this.setActiveBlock(blockIndex);
+            }
+        });
+
+        blockElement.addEventListener('focusin', () => {
+            const blockIndex = this.blocks.findIndex(b => b.instance === blockInstance);
+            if (blockIndex !== -1) {
+                this.setActiveBlock(blockIndex);
+            }
+        });
+
         const insertAt = afterIndex != null ? afterIndex + 1 : this.blocks.length;
 
         if (insertAt >= this.blocks.length) {
@@ -106,8 +126,11 @@ export default class View {
 
         this.blocks.splice(insertAt, 0, { type, instance: blockInstance });
 
-        // Set focus
-        setTimeout(() => blockInstance.element?.focus(), 0);
+        // Set focus and active block
+        setTimeout(() => {
+            blockInstance.element?.focus();
+            this.setActiveBlock(insertAt);
+        }, 0);
 
         return blockInstance;
     }
@@ -122,7 +145,20 @@ export default class View {
             return;
         }
 
-        if (this.blocks.length <= 1) return;
+        // Allow removing even the last block completely
+        if (this.blocks.length <= 1) {
+            // Remove the current block
+            const { instance } = this.blocks[index];
+            const element = instance.element;
+            if (element && element.remove) {
+                element.remove();
+            }
+            this.blocks.splice(index, 1);
+
+            // Clear active block since no blocks remain
+            this.setActiveBlock(-1);
+            return;
+        }
 
         const { instance } = this.blocks[index];
         const element = instance.element;
@@ -132,11 +168,27 @@ export default class View {
 
         this.blocks.splice(index, 1);
 
+        // Update active block index
+        if (this.activeBlockIndex >= index) {
+            this.activeBlockIndex = Math.max(0, this.activeBlockIndex - 1);
+        }
+
         // Focus previous block and place caret at end
         const previous = this.blocks[index - 1];
         if (previous?.instance?.element?.focus) {
             previous.instance.element.focus();
             this.placeCaretAtEnd(previous.instance.element);
+            this.setActiveBlock(index - 1);
+        } else if (this.blocks.length > 0) {
+            // Focus the first block if no previous block
+            const firstBlock = this.blocks[0];
+            if (firstBlock?.instance?.element?.focus) {
+                firstBlock.instance.element.focus();
+                this.setActiveBlock(0);
+            }
+        } else {
+            // No blocks left, clear active block
+            this.setActiveBlock(-1);
         }
     }
 
@@ -182,6 +234,11 @@ export default class View {
             const { type, ...data } = blockData;
             this.addBlock(type, data);
         });
+
+        // Set the first block as active if there are blocks
+        if (this.blocks.length > 0) {
+            this.setActiveBlock(0);
+        }
     }
 
     /**
@@ -191,6 +248,41 @@ export default class View {
         // Create toolbar container
         const toolbar = document.createElement('div');
         toolbar.className = 'bmark-toolbar';
+        toolbar.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+        `;
+
+        // Create title section
+        if (this.title) {
+            const titleSection = document.createElement('div');
+            titleSection.style.cssText = `
+                flex: 1;
+                display: flex;
+                align-items: center;
+            `;
+
+            const titleElement = document.createElement('div');
+            titleElement.textContent = this.title;
+            titleElement.style.cssText = `
+                font-size: 16px;
+                font-weight: 600;
+                color: #1e293b;
+            `;
+            titleSection.appendChild(titleElement);
+
+            toolbar.appendChild(titleSection);
+        }
+
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
 
         // Create plus button
         const plusButton = document.createElement('button');
@@ -202,6 +294,47 @@ export default class View {
             </svg>
         `;
         plusButton.title = 'Add Block';
+        plusButton.style.cssText = `
+            padding: 6px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        `;
+
+        // Create remove button
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'bmark-remove-button';
+        removeButton.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path d="M6 6l8 8M14 6l-8 8" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        `;
+        removeButton.title = 'Remove Active Block';
+        removeButton.style.cssText = `
+            padding: 6px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            opacity: 0.5;
+        `;
+
+        // Remove button click handler
+        removeButton.addEventListener('click', () => {
+            if (this.activeBlockIndex !== -1 && this.blocks.length > 0) {
+                this.removeBlock(this.activeBlockIndex);
+            }
+        });
 
         // Create dropdown menu container
         const dropdownContainer = document.createElement('div');
@@ -262,14 +395,17 @@ export default class View {
         // Append elements
         dropdownContainer.appendChild(arrow);
         dropdownContainer.appendChild(dropdownMenu);
-        toolbar.appendChild(plusButton);
-        toolbar.appendChild(dropdownContainer);
+        buttonContainer.appendChild(plusButton);
+        buttonContainer.appendChild(removeButton);
+        buttonContainer.appendChild(dropdownContainer);
+        toolbar.appendChild(buttonContainer);
 
         // Append toolbar to toolbar container
         this.toolbarContainer.appendChild(toolbar);
 
         // Store references
         this.plusButton = plusButton;
+        this.removeButton = removeButton;
         this.dropdownContainer = dropdownContainer;
         this.dropdownMenu = dropdownMenu;
     }
@@ -336,6 +472,44 @@ export default class View {
      */
     getHTML() {
         return this.contentArea.innerHTML;
+    }
+
+    /**
+     * Set the active block index
+     * @param {number} index - The index of the active block (-1 for none)
+     */
+    setActiveBlock(index) {
+        this.activeBlockIndex = index;
+        this.updateRemoveButtonState();
+    }
+
+    /**
+     * Update the remove button state based on active block
+     */
+    updateRemoveButtonState() {
+        if (this.removeButton) {
+            if (this.activeBlockIndex !== -1 && this.blocks.length > 0) {
+                this.removeButton.style.opacity = '1';
+                this.removeButton.style.cursor = 'pointer';
+            } else {
+                this.removeButton.style.opacity = '0.5';
+                this.removeButton.style.cursor = 'not-allowed';
+            }
+        }
+    }
+
+    /**
+ * Update the toolbar title
+ * @param {string} title - New title text
+ */
+    updateToolbarTitle(title) {
+        this.title = title;
+
+        // Re-render the toolbar to show the new text
+        if (this.toolbarContainer) {
+            this.toolbarContainer.innerHTML = '';
+            this.renderToolbar();
+        }
     }
 
     /**

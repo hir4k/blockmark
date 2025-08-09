@@ -25,7 +25,8 @@ const defaultUploadFunction = async (file) => {
 const controller = new Controller({
     model: new Model(),
     view: new View("#editor", {
-        uploadFunction: defaultUploadFunction
+        uploadFunction: defaultUploadFunction,
+        title: "My Document" // Add a title to the toolbar
     }),
 });
 
@@ -35,4 +36,9 @@ window.blockmarkEditor = controller;
 // Expose a function to update upload function
 window.setImageUploadFunction = (uploadFunction) => {
     controller.view.uploadFunction = uploadFunction;
+};
+
+// Expose a function to update toolbar title
+window.updateToolbarTitle = (title) => {
+    controller.view.updateToolbarTitle(title);
 };

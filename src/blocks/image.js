@@ -99,6 +99,14 @@ export class Image {
             display: none;
         `;
 
+        // Create button container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.cssText = `
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        `;
+
         // Create upload button
         const uploadButton = document.createElement('button');
         uploadButton.textContent = 'Choose Image';
@@ -120,6 +128,37 @@ export class Image {
 
         uploadButton.addEventListener('mouseout', () => {
             uploadButton.style.background = '#3b82f6';
+        });
+
+        // Create remove button for upload interface
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = 'Remove Block';
+        removeBtn.style.cssText = `
+            padding: 8px 16px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        `;
+
+        removeBtn.addEventListener('mouseover', () => {
+            removeBtn.style.background = '#fee2e2';
+        });
+
+        removeBtn.addEventListener('mouseout', () => {
+            removeBtn.style.background = '#fef2f2';
+        });
+
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (this.onBackspace) {
+                this.onBackspace();
+            }
         });
 
         // Handle file selection
@@ -175,7 +214,9 @@ export class Image {
         // Append elements
         uploadSection.appendChild(uploadIcon);
         uploadSection.appendChild(uploadText);
-        uploadSection.appendChild(uploadButton);
+        buttonContainer.appendChild(uploadButton);
+        buttonContainer.appendChild(removeBtn);
+        uploadSection.appendChild(buttonContainer);
         container.appendChild(uploadSection);
         container.appendChild(fileInput);
     }
@@ -358,8 +399,12 @@ export class Image {
             removeBtn.style.background = '#fef2f2';
         });
 
-        removeBtn.addEventListener('click', () => {
-            this.onBackspace?.();
+        removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (this.onBackspace) {
+                this.onBackspace();
+            }
         });
 
         // Append elements
