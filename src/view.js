@@ -3,6 +3,7 @@ import { Paragraph } from './blocks/paragraph.js';
 import { List } from './blocks/list.js';
 import { Table } from './blocks/table.js';
 import { YouTube } from './blocks/youtube.js';
+import { Image } from './blocks/image.js';
 
 export default class View {
     /**
@@ -16,7 +17,8 @@ export default class View {
             paragraph: Paragraph,
             list: List,
             table: Table,
-            youtube: YouTube
+            youtube: YouTube,
+            image: Image
         };
         this.setupEditorStructure();
         this.renderToolbar();

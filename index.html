@@ -21,6 +21,9 @@
         <button onclick="loadYouTubeTest()"
             style="padding: 8px 16px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
             YouTube Block</button>
+        <button onclick="loadImageTest()"
+            style="padding: 8px 16px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
+            Image Block</button>
     </div>
 
     <div id="resultDisplay" class="result-display hidden">
@@ -112,6 +115,36 @@
             document.getElementById('resultDisplay').classList.add('hidden');
 
             alert('YouTube test data loaded! You can edit the empty YouTube block by clicking on it.');
+        }
+
+        function loadImageTest() {
+            const sampleData = [
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Here's an image:" }
+                    ]
+                },
+                {
+                    "type": "image",
+                    "src": "",
+                    "alt": "",
+                    "caption": ""
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "You can upload an image by clicking on the image block above." }
+                    ]
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+
+            // Hide the result display when loading new data
+            document.getElementById('resultDisplay').classList.add('hidden');
+
+            alert('Image test data loaded! Click on the image block to upload an image.');
         }
     </script>
 </body>
