@@ -31,6 +31,12 @@
         <button onclick="loadParagraphSplitTest()"
             style="padding: 8px 16px; background: #06b6d4; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
             Paragraph Split</button>
+        <button onclick="testTextCleaning()"
+            style="padding: 8px 16px; background: #059669; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
+            Text Cleaning</button>
+        <button onclick="testUnicodeText()"
+            style="padding: 8px 16px; background: #7c3aed; color: white; border: none; border-radius: 4px; cursor: pointer;">Test
+            Unicode Text</button>
     </div>
 
     <div id="resultDisplay" class="result-display hidden">
@@ -208,6 +214,12 @@
                     "text": [
                         { "text": "This paragraph can be merged with the previous one using backspace at the beginning." }
                     ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This paragraph has line breaks\nand tabs\tthat will be cleaned on save." }
+                    ]
                 }
             ];
 
@@ -216,7 +228,103 @@
             // Hide the result display when loading new data
             document.getElementById('resultDisplay').classList.add('hidden');
 
-            alert('Paragraph split/merge test loaded!\n\nEnter key:\n- Place cursor in the middle of text and press Enter to split\n- Place cursor at the end and press Enter for new paragraph\n\nBackspace key:\n- Place cursor at the beginning and press Backspace to merge with previous paragraph\n- Place cursor in the middle/end and press Backspace for normal deletion');
+            alert('Paragraph split/merge test loaded!\n\nEnter key:\n- Place cursor in the middle of text and press Enter to split\n- Place cursor at the end and press Enter for new paragraph\n\nBackspace key:\n- Place cursor at the beginning and press Backspace to merge with previous paragraph\n- Place cursor in the middle/end and press Backspace for normal deletion\n\nText cleaning:\n- Line breaks, tabs, and extra whitespace are automatically cleaned on save');
+        }
+
+        function testTextCleaning() {
+            const sampleData = [
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This text has\nmultiple\nline breaks" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This text has\t\t\ttabs\tand\t\tspaces" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "This text has    multiple    spaces    between    words" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Mixed formatting:\n\tLine with tab\n\t\tDouble tab\n   Spaces at start" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "   Text with leading spaces" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "Text with trailing spaces   " }
+                    ]
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+
+            // Hide the result display when loading new data
+            document.getElementById('resultDisplay').classList.add('hidden');
+
+            alert('Text cleaning test loaded!\n\nThis demonstrates how line breaks and tabs are cleaned while preserving leading and trailing spaces.\n\nTry editing the text and then click "Save Editor" to see the cleaned output.');
+        }
+
+        function testUnicodeText() {
+            const sampleData = [
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "সকল নিগমে যাক বিচাৰি নাপায় ॥" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "বাংলা টেক্সট\nনতুন লাইন\nট্যাব\tস্পেস" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "हिंदी टेक्स्ट\tटैब के साथ\nनई लाइन" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "العربية نص\tمع تبويب\nسطر جديد" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "   বাংলা টেক্সট with leading spaces" }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "text": [
+                        { "text": "বাংলা টেক্সট with trailing spaces   " }
+                    ]
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+
+            // Hide the result display when loading new data
+            document.getElementById('resultDisplay').classList.add('hidden');
+
+            alert('Unicode text test loaded!\n\nThis tests how the editor handles various Unicode characters including Bengali, Hindi, and Arabic text with line breaks and tabs.\n\nLeading and trailing spaces are preserved while line breaks and tabs are cleaned.\n\nClick "Save Editor" to see if the Unicode characters are preserved correctly in the JSON output.');
         }
     </script>
 </body>

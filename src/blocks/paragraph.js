@@ -58,11 +58,23 @@ export class Paragraph {
             // Get plain text from clipboard
             const text = e.clipboardData.getData('text/plain');
 
-            // Normalize text: remove line breaks and extra whitespace
-            const normalizedText = text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim();
+            // Clean text: remove line breaks, tabs, and normalize whitespace
+            let cleanedText = text;
 
-            // Insert the normalized plain text at cursor position
-            document.execCommand('insertText', false, normalizedText);
+            // Only remove actual line breaks and tabs, preserve other characters
+            cleanedText = cleanedText
+                .replace(/\r\n/g, ' ') // Replace Windows line breaks
+                .replace(/\r/g, ' ') // Replace Mac line breaks
+                .replace(/\n/g, ' ') // Replace Unix line breaks
+                .replace(/\t/g, ' '); // Replace tabs
+
+            // Normalize multiple spaces to single space, but be more careful
+            cleanedText = cleanedText.replace(/[ ]+/g, ' '); // Only replace actual spaces
+
+            // Don't trim whitespace - preserve starting and ending spaces
+
+            // Insert the cleaned plain text at cursor position
+            document.execCommand('insertText', false, cleanedText);
         });
 
         // Parse the initial data to ensure it's in the correct format
@@ -175,7 +187,38 @@ export class Paragraph {
 
     _updateData() {
         // Parse HTML content to detect formatting
-        this.data = this._parseHtmlContent(this.element.innerHTML);
+        const parsedData = this._parseHtmlContent(this.element.innerHTML);
+
+        // Clean the data by removing line breaks, tabs, and other special characters
+        this.data = parsedData.map(segment => {
+            if (segment.text) {
+                // More precise cleaning that preserves Unicode characters
+                let cleanedText = segment.text;
+
+                // Only remove actual line breaks and tabs, preserve other characters
+                cleanedText = cleanedText
+                    .replace(/\r\n/g, ' ') // Replace Windows line breaks
+                    .replace(/\r/g, ' ') // Replace Mac line breaks
+                    .replace(/\n/g, ' ') // Replace Unix line breaks
+                    .replace(/\t/g, ' '); // Replace tabs
+
+                // Normalize multiple spaces to single space, but be more careful
+                cleanedText = cleanedText.replace(/[ ]+/g, ' '); // Only replace actual spaces
+
+                // Don't trim whitespace - preserve starting and ending spaces
+
+                return {
+                    ...segment,
+                    text: cleanedText
+                };
+            }
+            return segment;
+        }).filter(segment => segment.text !== ''); // Remove empty segments
+
+        // Ensure we always have at least one segment
+        if (this.data.length === 0) {
+            this.data = [{ text: '' }];
+        }
     }
 
     _parseHtmlContent(html) {
@@ -231,9 +274,35 @@ export class Paragraph {
     }
 
     save() {
+        // Clean the data by removing line breaks, tabs, and other special characters
+        const cleanedData = this.data.map(segment => {
+            if (segment.text) {
+                // More precise cleaning that preserves Unicode characters
+                let cleanedText = segment.text;
+
+                // Only remove actual line breaks and tabs, preserve other characters
+                cleanedText = cleanedText
+                    .replace(/\r\n/g, ' ') // Replace Windows line breaks
+                    .replace(/\r/g, ' ') // Replace Mac line breaks
+                    .replace(/\n/g, ' ') // Replace Unix line breaks
+                    .replace(/\t/g, ' '); // Replace tabs
+
+                // Normalize multiple spaces to single space, but be more careful
+                cleanedText = cleanedText.replace(/[ ]+/g, ' '); // Only replace actual spaces
+
+                // Don't trim whitespace - preserve starting and ending spaces
+
+                return {
+                    ...segment,
+                    text: cleanedText
+                };
+            }
+            return segment;
+        }).filter(segment => segment.text !== ''); // Remove empty segments
+
         return {
             type: 'paragraph',
-            text: this.data
+            text: cleanedData.length > 0 ? cleanedData : [{ text: '' }]
         };
     }
 }
