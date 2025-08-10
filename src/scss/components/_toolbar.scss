@@ -1,0 +1,114 @@
+// Toolbar Component Styles
+@use '../base/variables' as *;
+@use '../base/mixins' as *;
+
+.bmark-toolbar {
+    @include flex-gap($spacing-sm);
+    align-items: center;
+    position: relative;
+    z-index: $z-dropdown;
+}
+
+.bmark-toolbar-title-section {
+    flex: 1;
+    @include flex-center;
+}
+
+.bmark-toolbar-title {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-gray-800;
+}
+
+.bmark-toolbar-button-container {
+    @include flex-gap($spacing-sm);
+    align-items: center;
+}
+
+.bmark-plus-button {
+    @include button-base;
+    padding: $spacing-xs;
+    background: $color-gray-50;
+    border: 1px solid $color-gray-200;
+    border-radius: $border-radius-md;
+
+    &:hover {
+        background: $color-gray-100;
+        border-color: $color-gray-400;
+    }
+
+    &.active {
+        background: $color-gray-100;
+        box-shadow: $shadow-sm;
+    }
+}
+
+.bmark-remove-button {
+    @include button-base;
+    padding: $spacing-xs;
+    background: $color-red-50;
+    border: 1px solid $color-red-200;
+    border-radius: $border-radius-md;
+    transition: all $transition-base;
+    opacity: 0.5;
+
+    &:hover {
+        background: $color-red-100;
+        border-color: $color-red-300;
+    }
+
+    &.active {
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    &.inactive {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.bmark-dropdown-container {
+    position: absolute;
+    top: 100%;
+    left: $spacing-sm;
+    background: $color-gray-800;
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-lg;
+    display: none;
+    z-index: $z-dropdown-menu;
+    min-width: 200px;
+    margin-top: $spacing-xs;
+}
+
+.bmark-dropdown-arrow {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid $color-gray-800;
+    margin-left: $spacing-md;
+    margin-bottom: -1px;
+}
+
+.bmark-dropdown-menu {
+    padding: $spacing-sm 0;
+}
+
+.bmark-menu-item {
+    @include flex-gap($spacing-md);
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    cursor: pointer;
+    transition: background $transition-base;
+    color: $color-white;
+    font-size: $font-size-sm;
+
+    &:hover {
+        background: #333333;
+    }
+
+    &:not(:last-child) {
+        border-bottom: 1px solid #333333;
+    }
+}

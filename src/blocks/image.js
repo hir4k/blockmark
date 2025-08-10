@@ -29,28 +29,162 @@ export class Image {
     }
 
     render() {
-        this.element.innerHTML = '';
-
-        // Create container
         const container = document.createElement('div');
-        container.style.cssText = `
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 8px 0;
-            background: white;
-        `;
+        container.className = 'image-container';
 
         if (!this.data.src) {
-            // Show upload interface
-            this._renderUploadInterface(container);
+            // Show upload form
+            const uploadSection = document.createElement('div');
+            uploadSection.className = 'image-upload-section';
+
+            const uploadIcon = document.createElement('div');
+            uploadIcon.className = 'image-upload-icon';
+            uploadIcon.innerHTML = '📷';
+
+            const uploadText = document.createElement('div');
+            uploadText.className = 'image-upload-text';
+            uploadText.textContent = 'Click to upload an image or drag and drop';
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.className = 'image-file-input';
+            fileInput.accept = 'image/*';
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'image-button-container';
+
+            const uploadButton = document.createElement('button');
+            uploadButton.type = 'button';
+            uploadButton.className = 'image-upload-button';
+            uploadButton.textContent = 'Choose File';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'image-remove-btn';
+            removeBtn.textContent = 'Remove';
+
+            buttonContainer.appendChild(uploadButton);
+            buttonContainer.appendChild(removeBtn);
+
+            uploadSection.appendChild(uploadIcon);
+            uploadSection.appendChild(uploadText);
+            uploadSection.appendChild(fileInput);
+            uploadSection.appendChild(buttonContainer);
+
+            // Event handlers
+            uploadButton.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this._handleFileUpload(file);
+                }
+            });
+
+            uploadSection.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            uploadSection.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadSection.classList.add('dragover');
+            });
+
+            uploadSection.addEventListener('dragleave', () => {
+                uploadSection.classList.remove('dragover');
+            });
+
+            uploadSection.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadSection.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    this._handleFileUpload(file);
+                }
+            });
+
+            removeBtn.addEventListener('click', () => {
+                this.onBackspace?.();
+            });
+
+            container.appendChild(uploadSection);
         } else {
-            // Show image with controls
-            this._renderImage(container);
+            // Show image
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-display-container';
+
+            const img = document.createElement('img');
+            img.className = 'image-display-img';
+            img.src = this.data.src;
+            img.alt = this.data.alt || '';
+
+            const captionInput = document.createElement('input');
+            captionInput.type = 'text';
+            captionInput.className = 'image-caption-input';
+            captionInput.placeholder = 'Add a caption (optional)';
+            captionInput.value = this.data.caption || '';
+
+            const controls = document.createElement('div');
+            controls.className = 'image-controls';
+
+            const altInput = document.createElement('input');
+            altInput.type = 'text';
+            altInput.className = 'image-alt-input';
+            altInput.placeholder = 'Alt text for accessibility';
+            altInput.value = this.data.alt || '';
+
+            const editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'image-edit-btn';
+            editBtn.textContent = 'Edit';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'image-remove-btn';
+            removeBtn.textContent = 'Remove';
+
+            controls.appendChild(altInput);
+            controls.appendChild(editBtn);
+            controls.appendChild(removeBtn);
+
+            // Event handlers
+            captionInput.addEventListener('input', () => {
+                this.data.caption = captionInput.value;
+            });
+
+            altInput.addEventListener('input', () => {
+                this.data.alt = altInput.value;
+                img.alt = this.data.alt;
+            });
+
+            editBtn.addEventListener('click', () => {
+                this.data.src = '';
+                this.data.alt = '';
+                this.data.caption = '';
+                this.element.innerHTML = '';
+                this.element.appendChild(this.render());
+            });
+
+            removeBtn.addEventListener('click', () => {
+                this.onBackspace?.();
+            });
+
+            imageContainer.appendChild(img);
+            if (this.data.caption) {
+                const caption = document.createElement('div');
+                caption.className = 'image-caption';
+                caption.textContent = this.data.caption;
+                imageContainer.appendChild(caption);
+            }
+
+            container.appendChild(imageContainer);
+            container.appendChild(captionInput);
+            container.appendChild(controls);
         }
 
-        this.element.appendChild(container);
-        return this.element;
+        return container;
     }
 
     _renderUploadInterface(container) {

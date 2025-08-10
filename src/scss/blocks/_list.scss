@@ -1,0 +1,47 @@
+// List Block Styles
+@use '../base/variables' as *;
+@use '../base/mixins' as *;
+
+.list-block {
+    margin-bottom: 1em;
+}
+
+.list-container {
+    @include block-container;
+}
+
+.list-element {
+    margin: 0;
+    padding-left: 1.5em;
+
+    li {
+        margin-bottom: 0.5em;
+        line-height: 1.6;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &:focus {
+            outline: 2px solid $color-primary;
+            outline-offset: 2px;
+            border-radius: $border-radius-sm;
+        }
+    }
+}
+
+.list-controls {
+    margin-top: $spacing-md;
+    @include flex-gap($spacing-sm);
+    flex-wrap: wrap;
+}
+
+.list-add-item-btn {
+    @include button-base;
+    @include button-variant($color-primary, $color-primary-hover);
+}
+
+.list-remove-item-btn {
+    @include button-base;
+    @include button-variant($color-danger, $color-danger-hover);
+}

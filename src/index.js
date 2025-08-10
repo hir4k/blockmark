@@ -2,6 +2,9 @@ import Controller from "./controller";
 import Model from "./model";
 import View from "./view";
 
+// Import main SCSS file (will be compiled to CSS)
+import "./scss/main.scss";
+
 // Default upload function (you can replace this with your own)
 const defaultUploadFunction = async (file) => {
     // Example upload function - replace with your implementation

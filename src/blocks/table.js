@@ -24,57 +24,112 @@ export class Table {
     }
 
     render() {
-        this.element.innerHTML = '';
-
-        // Create table container
         const tableContainer = document.createElement('div');
-        tableContainer.style.cssText = `
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            overflow: hidden;
-            margin: 8px 0;
-        `;
+        tableContainer.className = 'table-container';
 
-        // Create table element
         const table = document.createElement('table');
-        table.style.cssText = `
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        `;
+        table.className = 'table-element';
 
-        // Create table body
+        // Create header row
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+
+        this.headers.forEach((header, index) => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            th.contentEditable = true;
+            th.addEventListener('input', () => {
+                this.headers[index] = th.textContent;
+            });
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Create body
         const tbody = document.createElement('tbody');
 
-        // Initialize cells if empty
-        if (this.data.cells.length === 0) {
-            this._initializeCells();
-        }
-
-        // Render rows
-        for (let rowIndex = 0; rowIndex < this.data.rows; rowIndex++) {
+        this.rows.forEach((row, rowIndex) => {
             const tr = document.createElement('tr');
 
-            for (let colIndex = 0; colIndex < this.data.columns; colIndex++) {
-                const cellIndex = rowIndex * this.data.columns + colIndex;
-                const cellData = this.data.cells[cellIndex] || { text: [] };
-
-                const td = this._createCell(cellData, rowIndex, colIndex);
+            row.forEach((cell, cellIndex) => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                td.contentEditable = true;
+                td.addEventListener('input', () => {
+                    this.rows[rowIndex][cellIndex] = td.textContent;
+                });
                 tr.appendChild(td);
-            }
+            });
 
             tbody.appendChild(tr);
-        }
+        });
 
         table.appendChild(tbody);
-        tableContainer.appendChild(table);
 
-        // Add table controls
-        const controls = this._createTableControls();
+        // Create controls
+        const controls = document.createElement('div');
+        controls.className = 'table-controls';
+
+        const addRowBtn = document.createElement('button');
+        addRowBtn.type = 'button';
+        addRowBtn.className = 'table-add-row-btn';
+        addRowBtn.textContent = 'Add Row';
+
+        const addColBtn = document.createElement('button');
+        addColBtn.type = 'button';
+        addColBtn.className = 'table-add-col-btn';
+        addColBtn.textContent = 'Add Column';
+
+        const removeRowBtn = document.createElement('button');
+        removeRowBtn.type = 'button';
+        removeRowBtn.className = 'table-remove-row-btn';
+        removeRowBtn.textContent = 'Remove Row';
+
+        const removeColBtn = document.createElement('button');
+        removeColBtn.type = 'button';
+        removeColBtn.className = 'table-remove-col-btn';
+        removeColBtn.textContent = 'Remove Column';
+
+        controls.appendChild(addRowBtn);
+        controls.appendChild(addColBtn);
+        controls.appendChild(removeRowBtn);
+        controls.appendChild(removeColBtn);
+
+        // Event handlers
+        addRowBtn.addEventListener('click', () => {
+            this.addRow();
+            this.element.innerHTML = '';
+            this.element.appendChild(this.render());
+        });
+
+        addColBtn.addEventListener('click', () => {
+            this.addColumn();
+            this.element.innerHTML = '';
+            this.element.appendChild(this.render());
+        });
+
+        removeRowBtn.addEventListener('click', () => {
+            if (this.rows.length > 1) {
+                this.removeRow();
+                this.element.innerHTML = '';
+                this.element.appendChild(this.render());
+            }
+        });
+
+        removeColBtn.addEventListener('click', () => {
+            if (this.headers.length > 1) {
+                this.removeColumn();
+                this.element.innerHTML = '';
+                this.element.appendChild(this.render());
+            }
+        });
+
+        tableContainer.appendChild(table);
         tableContainer.appendChild(controls);
 
-        this.element.appendChild(tableContainer);
-        return this.element;
+        return tableContainer;
     }
 
     _initializeCells() {

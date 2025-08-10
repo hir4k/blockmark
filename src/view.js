@@ -286,29 +286,15 @@ export default class View {
         // Create toolbar container
         const toolbar = document.createElement('div');
         toolbar.className = 'bmark-toolbar';
-        toolbar.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            
-        `;
 
         // Create title section
         if (this.title) {
             const titleSection = document.createElement('div');
-            titleSection.style.cssText = `
-                flex: 1;
-                display: flex;
-                align-items: center;
-            `;
+            titleSection.className = 'bmark-toolbar-title-section';
 
             const titleElement = document.createElement('div');
+            titleElement.className = 'bmark-toolbar-title';
             titleElement.textContent = this.title;
-            titleElement.style.cssText = `
-                font-size: 16px;
-                font-weight: 600;
-                color: #1e293b;
-            `;
             titleSection.appendChild(titleElement);
 
             toolbar.appendChild(titleSection);
@@ -316,11 +302,7 @@ export default class View {
 
         // Create button container
         const buttonContainer = document.createElement('div');
-        buttonContainer.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        `;
+        buttonContainer.className = 'bmark-toolbar-button-container';
 
         // Create plus button
         const plusButton = document.createElement('button');
@@ -332,17 +314,6 @@ export default class View {
             </svg>
         `;
         plusButton.title = 'Add Block';
-        plusButton.style.cssText = `
-            padding: 6px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        `;
 
         // Create remove button
         const removeButton = document.createElement('button');
@@ -354,18 +325,6 @@ export default class View {
             </svg>
         `;
         removeButton.title = 'Remove Active Block';
-        removeButton.style.cssText = `
-            padding: 6px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            opacity: 0.5;
-        `;
 
         // Remove button click handler
         removeButton.addEventListener('click', () => {
@@ -380,15 +339,7 @@ export default class View {
 
         // Create pointing arrow
         const arrow = document.createElement('div');
-        arrow.style.cssText = `
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 8px solid #1e293b;
-            margin-left: 12px;
-            margin-bottom: -1px;
-        `;
+        arrow.className = 'bmark-dropdown-arrow';
 
         // Create dropdown menu
         const dropdownMenu = document.createElement('div');
@@ -398,54 +349,44 @@ export default class View {
         const blocks = BlockRegistry.getAllBlocks();
 
         // Create menu items
-        blocks.forEach((block, index) => {
+        blocks.forEach(block => {
             const menuItem = document.createElement('div');
             menuItem.className = 'bmark-menu-item';
             menuItem.innerHTML = `
-                <div style="display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;">
-                    ${block.icon}
-                </div>
+                <span>${block.icon}</span>
                 <span>${block.name}</span>
             `;
-
-            // Click handler
             menuItem.addEventListener('click', () => {
                 this.addBlock(block.type, block.defaultData);
-                this.toggleMenu();
+                this.closeMenu();
             });
-
             dropdownMenu.appendChild(menuItem);
         });
 
-        // Toggle menu on plus button click
-        plusButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        // Assemble dropdown
+        dropdownContainer.appendChild(arrow);
+        dropdownContainer.appendChild(dropdownMenu);
+
+        // Plus button click handler
+        plusButton.addEventListener('click', () => {
             this.toggleMenu();
         });
 
-        // Close menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!toolbar.contains(e.target)) {
-                this.closeMenu();
-            }
-        });
-
-        // Append elements
-        dropdownContainer.appendChild(arrow);
-        dropdownContainer.appendChild(dropdownMenu);
+        // Add elements to toolbar
         buttonContainer.appendChild(plusButton);
         buttonContainer.appendChild(removeButton);
-        buttonContainer.appendChild(dropdownContainer);
         toolbar.appendChild(buttonContainer);
 
-        // Append toolbar to toolbar container
+        // Add dropdown to toolbar
+        toolbar.appendChild(dropdownContainer);
+
+        // Add toolbar to container
         this.toolbarContainer.appendChild(toolbar);
 
         // Store references
         this.plusButton = plusButton;
         this.removeButton = removeButton;
         this.dropdownContainer = dropdownContainer;
-        this.dropdownMenu = dropdownMenu;
     }
 
     /**
@@ -463,22 +404,20 @@ export default class View {
      * Opens the dropdown menu
      */
     openMenu() {
-        // Position dropdown relative to the plus button
-        this.dropdownContainer.style.left = '8px';
-        this.dropdownContainer.style.top = '100%';
-
-        this.dropdownContainer.style.display = 'block';
-        this.isMenuOpen = true;
-        this.plusButton.classList.add('active');
+        if (this.dropdownContainer) {
+            this.dropdownContainer.style.display = 'block';
+            this.plusButton.classList.add('active');
+        }
     }
 
     /**
      * Closes the dropdown menu
      */
     closeMenu() {
-        this.dropdownContainer.style.display = 'none';
-        this.isMenuOpen = false;
-        this.plusButton.classList.remove('active');
+        if (this.dropdownContainer) {
+            this.dropdownContainer.style.display = 'none';
+            this.plusButton.classList.remove('active');
+        }
     }
 
     /**
@@ -527,11 +466,11 @@ export default class View {
     updateRemoveButtonState() {
         if (this.removeButton) {
             if (this.activeBlockIndex !== -1 && this.blocks.length > 0) {
-                this.removeButton.style.opacity = '1';
-                this.removeButton.style.cursor = 'pointer';
+                this.removeButton.classList.add('active');
+                this.removeButton.classList.remove('inactive');
             } else {
-                this.removeButton.style.opacity = '0.5';
-                this.removeButton.style.cursor = 'not-allowed';
+                this.removeButton.classList.remove('active');
+                this.removeButton.classList.add('inactive');
             }
         }
     }

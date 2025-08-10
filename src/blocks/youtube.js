@@ -16,28 +16,115 @@ export class YouTube {
     }
 
     render() {
-        this.element.innerHTML = '';
-
-        // Create container
         const container = document.createElement('div');
-        container.style.cssText = `
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px;
-            margin: 8px 0;
-            background: white;
-        `;
+        container.className = 'youtube-container';
 
-        if (!this.data.url) {
-            // Show URL input
-            this._renderUrlInput(container);
+        if (!this.videoId) {
+            // Show input form
+            const inputSection = document.createElement('div');
+            inputSection.className = 'youtube-input-section';
+
+            const label = document.createElement('label');
+            label.className = 'youtube-label';
+            label.textContent = 'YouTube Video URL:';
+
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'youtube-input-container';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'youtube-input';
+            input.placeholder = 'https://www.youtube.com/watch?v=...';
+            input.value = this.url || '';
+
+            const embedBtn = document.createElement('button');
+            embedBtn.type = 'button';
+            embedBtn.className = 'youtube-embed-btn';
+            embedBtn.textContent = 'Embed Video';
+
+            inputContainer.appendChild(input);
+            inputContainer.appendChild(embedBtn);
+
+            const helpText = document.createElement('div');
+            helpText.className = 'youtube-help-text';
+            helpText.innerHTML = `
+                Paste a YouTube video URL above and click "Embed Video" to add it to your content.
+                <br>Supported formats: youtube.com/watch?v=..., youtu.be/...
+            `;
+
+            inputSection.appendChild(label);
+            inputSection.appendChild(inputContainer);
+            inputSection.appendChild(helpText);
+
+            // Input event handlers
+            input.addEventListener('input', () => {
+                this.url = input.value;
+                input.classList.remove('error');
+                embedBtn.disabled = !input.value.trim();
+            });
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this._embedVideo(input, embedBtn);
+                }
+            });
+
+            embedBtn.addEventListener('click', () => {
+                this._embedVideo(input, embedBtn);
+            });
+
+            container.appendChild(inputSection);
         } else {
             // Show embedded video
-            this._renderVideo(container);
+            const videoContainer = document.createElement('div');
+            videoContainer.className = 'youtube-video-container';
+
+            const iframe = document.createElement('iframe');
+            iframe.className = 'youtube-iframe';
+            iframe.src = `https://www.youtube.com/embed/${this.videoId}`;
+            iframe.title = 'YouTube video';
+            iframe.allowFullscreen = true;
+
+            videoContainer.appendChild(iframe);
+
+            const controls = document.createElement('div');
+            controls.className = 'youtube-controls';
+
+            const urlDisplay = document.createElement('div');
+            urlDisplay.className = 'youtube-url-display';
+            urlDisplay.textContent = this.url || `https://www.youtube.com/watch?v=${this.videoId}`;
+
+            const editBtn = document.createElement('button');
+            editBtn.type = 'button';
+            editBtn.className = 'youtube-edit-btn';
+            editBtn.textContent = 'Edit';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'youtube-remove-btn';
+            removeBtn.textContent = 'Remove';
+
+            controls.appendChild(urlDisplay);
+            controls.appendChild(editBtn);
+            controls.appendChild(removeBtn);
+
+            // Event handlers
+            editBtn.addEventListener('click', () => {
+                this.videoId = null;
+                this.url = '';
+                this.element.innerHTML = '';
+                this.element.appendChild(this.render());
+            });
+
+            removeBtn.addEventListener('click', () => {
+                this.onBackspace?.();
+            });
+
+            container.appendChild(videoContainer);
+            container.appendChild(controls);
         }
 
-        this.element.appendChild(container);
-        return this.element;
+        return container;
     }
 
     _renderUrlInput(container) {
@@ -283,19 +370,37 @@ export class YouTube {
         return patterns.some(pattern => pattern.test(url));
     }
 
+    _embedVideo(input, embedBtn) {
+        const url = input.value.trim();
+        if (!url) return;
+
+        const videoId = this._extractVideoId(url);
+        if (!videoId) {
+            input.classList.add('error');
+            return;
+        }
+
+        this.videoId = videoId;
+        this.url = url;
+        this.element.innerHTML = '';
+        this.element.appendChild(this.render());
+    }
+
     _extractVideoId(url) {
-        // Handle youtu.be URLs
-        if (url.includes('youtu.be/')) {
-            return url.split('youtu.be/')[1].split('?')[0];
+        // Extract video ID from various YouTube URL formats
+        const patterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+            /youtube\.com\/watch\?.*v=([^&\n?#]+)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = url.match(pattern);
+            if (match) {
+                return match[1];
+            }
         }
 
-        // Handle youtube.com URLs
-        if (url.includes('youtube.com/watch')) {
-            const urlParams = new URLSearchParams(url.split('?')[1]);
-            return urlParams.get('v');
-        }
-
-        return '';
+        return null;
     }
 
     _showError(input, message) {

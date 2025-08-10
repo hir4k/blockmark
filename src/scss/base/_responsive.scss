@@ -1,0 +1,40 @@
+// Responsive Styles
+@use 'variables' as *;
+@use 'mixins' as *;
+
+@include mobile {
+    .bmark-toolbar-container {
+        padding: $spacing-sm $spacing-md;
+    }
+
+    .bmark-content-area {
+        padding: 0.75em;
+    }
+
+    .bmark-dropdown-container {
+        min-width: 180px;
+    }
+
+    .table-controls,
+    .list-controls,
+    .image-controls {
+        flex-direction: column;
+        align-items: stretch;
+
+        button {
+            width: 100%;
+        }
+    }
+
+    .youtube-input-container {
+        flex-direction: column;
+
+        .youtube-embed-btn {
+            width: 100%;
+        }
+    }
+
+    .image-alt-input {
+        min-width: auto;
+    }
+}

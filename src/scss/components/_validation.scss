@@ -1,0 +1,16 @@
+// Validation Component Styles
+@use '../base/variables' as *;
+
+.bmark-editor[data-required="true"] {
+    position: relative;
+
+    &:empty::after {
+        content: 'Editor cannot be empty';
+        position: absolute;
+        bottom: -25px;
+        left: 0;
+        color: $color-danger;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+    }
+}

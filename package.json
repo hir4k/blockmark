@@ -19,7 +19,9 @@
     "dev": "vite",
     "build": "vite build",
     "build:lib": "vite build --config vite.lib.config.js",
-    "prepublishOnly": "npm run build:lib"
+    "build:scss": "sass src/scss/main.scss:dist/blockmark.css --style compressed",
+    "build:scss:watch": "sass src/scss/main.scss:dist/blockmark.css --watch",
+    "prepublishOnly": "npm run build:scss && npm run build:lib"
   },
   "keywords": [
     "rich-text-editor",
@@ -32,6 +34,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "sass": "^1.90.0",
     "vite": "^6.3.5"
   },
   "dependencies": {

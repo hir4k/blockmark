@@ -38,19 +38,58 @@ export class List {
     }
 
     render() {
-        this.element.innerHTML = ''; // clear
+        const listContainer = document.createElement('div');
+        listContainer.className = 'list-container';
 
-        this.data.items.forEach((itemSegments, index) => {
-            const li = this._createItem(itemSegments, index);
-            this.element.appendChild(li);
+        const list = document.createElement(this.ordered ? 'ol' : 'ul');
+        list.className = 'list-element';
+
+        this.items.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            li.contentEditable = true;
+            li.addEventListener('input', () => {
+                this.items[index] = li.textContent;
+            });
+            list.appendChild(li);
         });
 
-        // Ensure at least one <li>
-        if (this.element.children.length === 0) {
-            this.element.appendChild(this._createItem([], 0));
-        }
+        // Create controls
+        const controls = document.createElement('div');
+        controls.className = 'list-controls';
 
-        return this.element;
+        const addItemBtn = document.createElement('button');
+        addItemBtn.type = 'button';
+        addItemBtn.className = 'list-add-item-btn';
+        addItemBtn.textContent = 'Add Item';
+
+        const removeItemBtn = document.createElement('button');
+        removeItemBtn.type = 'button';
+        removeItemBtn.className = 'list-remove-item-btn';
+        removeItemBtn.textContent = 'Remove Item';
+
+        controls.appendChild(addItemBtn);
+        controls.appendChild(removeItemBtn);
+
+        // Event handlers
+        addItemBtn.addEventListener('click', () => {
+            this.addItem();
+            this.element.innerHTML = '';
+            this.element.appendChild(this.render());
+        });
+
+        removeItemBtn.addEventListener('click', () => {
+            if (this.items.length > 1) {
+                this.removeItem();
+                this.element.innerHTML = '';
+                this.element.appendChild(this.render());
+            }
+        });
+
+        listContainer.appendChild(list);
+        listContainer.appendChild(controls);
+
+        return listContainer;
     }
 
     _createItem(itemSegments = [], index) {

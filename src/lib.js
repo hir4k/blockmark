@@ -1,7 +1,7 @@
 import Controller from "./controller";
 import Model from "./model";
 import View from "./view";
-import "./styles.css";
+import "./scss/main.scss";
 
 /**
  * BlockmarkEditor - A block-based rich text editor library
@@ -30,6 +30,7 @@ export class BlockmarkEditor {
      * @param {Object} options.blocks - Custom block configuration
      * @param {Object} options.styles - Custom styling options
      * @param {boolean} options.readOnly - Whether the editor is read-only
+     * @param {boolean} options.required - Whether the editor is required
      */
     constructor(container, options = {}) {
         this.container = typeof container === "string" ? document.querySelector(container) : container;
@@ -43,6 +44,7 @@ export class BlockmarkEditor {
             blocks: {},
             styles: {},
             readOnly: false,
+            required: false,
             ...options
         };
 
@@ -50,6 +52,7 @@ export class BlockmarkEditor {
         this.view = new View(this.container, {
             uploadFunction: this.options.uploadFunction,
             readOnly: this.options.readOnly,
+            required: this.options.required,
             ...this.options
         });
 
@@ -65,6 +68,7 @@ export class BlockmarkEditor {
     /**
      * Save the editor content
      * @returns {Array} Array of block data
+     * @throws {Error} If editor is required but empty
      */
     save() {
         return this.controller.save();
@@ -93,6 +97,31 @@ export class BlockmarkEditor {
     setReadOnly(readOnly) {
         this.options.readOnly = readOnly;
         this.view.setReadOnly(readOnly);
+    }
+
+    /**
+     * Set whether the editor is required
+     * @param {boolean} required - Whether the editor should be required
+     */
+    setRequired(required) {
+        this.options.required = required;
+        this.view.setRequired(required);
+    }
+
+    /**
+     * Validate that the editor is not empty (when required)
+     * @returns {boolean} True if the editor is valid
+     */
+    validate() {
+        return this.controller.validate();
+    }
+
+    /**
+     * Get validation error message if editor is empty when required
+     * @returns {string|null} Error message or null if valid
+     */
+    getValidationError() {
+        return this.controller.getValidationError();
     }
 
     /**

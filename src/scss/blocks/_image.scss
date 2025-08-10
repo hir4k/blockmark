@@ -1,0 +1,128 @@
+// Image Block Styles
+@use '../base/variables' as *;
+@use '../base/mixins' as *;
+
+.image-block {
+    margin-bottom: 1em;
+}
+
+.image-container {
+    @include block-container;
+}
+
+.image-upload-section {
+    border: 2px dashed $color-gray-300;
+    border-radius: $border-radius-lg;
+    padding: 2em;
+    text-align: center;
+    cursor: pointer;
+    transition: all $transition-base;
+    background: $color-gray-50;
+
+    &:hover {
+        border-color: $color-gray-400;
+        background-color: $color-gray-100;
+    }
+
+    &.dragover {
+        border-color: $color-primary;
+        background-color: #eff6ff;
+    }
+}
+
+.image-upload-icon {
+    font-size: 48px;
+    color: $color-gray-400;
+    margin-bottom: $spacing-md;
+}
+
+.image-upload-text {
+    font-size: $font-size-base;
+    color: $color-gray-500;
+    margin-bottom: $spacing-sm;
+}
+
+.image-file-input {
+    display: none;
+}
+
+.image-button-container {
+    @include flex-gap($spacing-sm);
+    justify-content: center;
+    margin-top: $spacing-md;
+}
+
+.image-upload-button {
+    @include button-base;
+    @include button-variant($color-primary, $color-primary-hover);
+}
+
+.image-remove-btn {
+    @include button-base;
+    @include button-variant($color-red-50, $color-red-100, $color-danger);
+    border: 1px solid $color-red-200;
+}
+
+.image-display-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.image-display-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: $border-radius-lg;
+    display: block;
+}
+
+.image-caption-input {
+    @include input-base;
+    width: 100%;
+    margin-top: $spacing-sm;
+}
+
+.image-controls {
+    margin-top: $spacing-md;
+    @include flex-gap($spacing-sm);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.image-alt-input {
+    @include input-base;
+    flex: 1;
+    min-width: 200px;
+    font-size: $font-size-xs;
+}
+
+.image-edit-btn {
+    @include button-base;
+    @include button-variant($color-gray-100, $color-gray-200, $color-gray-700);
+    border: 1px solid $color-gray-300;
+}
+
+.image-caption {
+    margin-top: $spacing-sm;
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+    font-style: italic;
+    text-align: center;
+}
+
+.image-error {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    background: $color-red-50;
+    border: 1px solid $color-red-200;
+    border-radius: $border-radius-md;
+    color: $color-danger;
+    font-size: $font-size-xs;
+}
+
+.image-loading {
+    @include flex-center;
+    padding: 2em;
+    color: $color-gray-500;
+    font-size: $font-size-sm;
+}
