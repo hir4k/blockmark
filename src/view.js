@@ -12,6 +12,7 @@ export default class View {
      * @param {Function} options.uploadFunction - Function to handle image uploads
      * @param {boolean} options.readOnly - Whether the editor is read-only
      * @param {Object} options.styles - Custom styling options
+     * @param {boolean} options.required - Whether the editor is required
      */
     constructor(holder, options = {}) {
         this.holder = typeof holder === "string" ? document.querySelector(holder) : holder;
@@ -22,6 +23,7 @@ export default class View {
         this.readOnly = options.readOnly || false;
         this.styles = options.styles || {};
         this.title = options.title || null; // Add title option
+        this.required = options.required || false; // Add required option
         this.tools = {
             paragraph: Paragraph,
             list: List,
@@ -41,6 +43,7 @@ export default class View {
     setupEditorStructure() {
         // Add editor class to holder
         this.holder.classList.add('bmark-editor');
+        this.holder.setAttribute('data-required', this.required.toString());
 
         // Create toolbar container
         this.toolbarContainer = document.createElement('div');
@@ -545,6 +548,57 @@ export default class View {
             this.toolbarContainer.innerHTML = '';
             this.renderToolbar();
         }
+    }
+
+    /**
+     * Check if the editor has any content by examining the DOM
+     * @returns {boolean} True if the editor has content
+     */
+    hasContent() {
+        // Check if there's any text content in the editor
+        const textContent = this.contentArea.textContent.trim();
+        if (textContent.length > 0) {
+            return true;
+        }
+
+        // Check if there are any images or videos
+        const images = this.contentArea.querySelectorAll('img');
+        const videos = this.contentArea.querySelectorAll('iframe');
+
+        return images.length > 0 || videos.length > 0;
+    }
+
+    /**
+     * Validate that the editor is not empty (when required)
+     * @returns {boolean} True if the editor is valid
+     */
+    validateEditor() {
+        // If editor is not required, always return true
+        if (!this.required) {
+            return true;
+        }
+
+        // If required, check if editor has any content
+        return this.hasContent();
+    }
+
+    /**
+     * Get validation error message if editor is empty when required
+     * @returns {string|null} Error message or null if valid
+     */
+    getValidationError() {
+        if (!this.required) return null;
+        if (this.hasContent()) return null;
+        return 'Editor cannot be empty';
+    }
+
+    /**
+     * Set whether the editor is required
+     * @param {boolean} required - Whether the editor should be required
+     */
+    setRequired(required) {
+        this.required = required;
+        this.holder.setAttribute('data-required', required.toString());
     }
 
     /**

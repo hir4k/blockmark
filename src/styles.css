@@ -98,38 +98,30 @@
     position: relative;
 }
 
-.bmark-block:last-child {
-    margin-bottom: 0;
-}
-
 .bmark-block-content {
     outline: none;
-    min-height: 1.5em;
 }
 
 .bmark-block-content:empty::before {
     content: attr(data-placeholder);
-    color: #94a3b8;
+    color: #9ca3af;
     pointer-events: none;
 }
 
-/* Read-only mode */
 .bmark-readonly .bmark-toolbar-container {
     display: none;
 }
 
 .bmark-readonly .bmark-content-area {
-    pointer-events: none;
+    padding: 1em;
 }
 
-/* Block-specific styles */
 .bmark-paragraph {
-    line-height: 1.6;
+    margin-bottom: 1em;
 }
 
 .bmark-list {
-    margin: 0;
-    padding-left: 1.5em;
+    margin-bottom: 1em;
 }
 
 .bmark-list-item {
@@ -137,20 +129,20 @@
 }
 
 .bmark-table {
-    border-collapse: collapse;
     width: 100%;
-    margin: 1em 0;
+    border-collapse: collapse;
+    margin-bottom: 1em;
 }
 
 .bmark-table th,
 .bmark-table td {
-    border: 1px solid #cbd5e1;
-    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    padding: 8px;
     text-align: left;
 }
 
 .bmark-table th {
-    background: #f8fafc;
+    background-color: #f8fafc;
     font-weight: 600;
 }
 
@@ -159,8 +151,7 @@
     width: 100%;
     height: 0;
     padding-bottom: 56.25%;
-    /* 16:9 aspect ratio */
-    margin: 1em 0;
+    margin-bottom: 1em;
 }
 
 .bmark-youtube iframe {
@@ -170,14 +161,10 @@
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: 8px;
 }
 
 .bmark-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 1em 0;
+    margin-bottom: 1em;
 }
 
 .bmark-image-container {
@@ -192,20 +179,33 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    background: #f8fafc;
 }
 
 .bmark-image-upload:hover {
     border-color: #94a3b8;
-    background: #f1f5f9;
+    background-color: #f8fafc;
 }
 
 .bmark-image-upload.dragover {
     border-color: #3b82f6;
-    background: #eff6ff;
+    background-color: #eff6ff;
 }
 
-/* Responsive design */
+/* Editor-level validation styles */
+.bmark-editor[data-required="true"] {
+    position: relative;
+}
+
+.bmark-editor[data-required="true"]:empty::after {
+    content: 'Editor cannot be empty';
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 500;
+}
+
 @media (max-width: 768px) {
     .bmark-toolbar-container {
         padding: 8px 12px;

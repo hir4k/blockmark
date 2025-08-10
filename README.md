@@ -6,6 +6,7 @@ A lightweight, block-based rich text editor library for modern web applications.
 
 - 🧱 **Block-based editing** - Create content using different block types
 - 📝 **Rich text support** - Paragraphs, lists, tables, images, and YouTube embeds
+- ✅ **Editor validation** - Required editor validation with error handling
 - 🎨 **Customizable** - Easy to style and configure
 - 📱 **Responsive** - Works on desktop and mobile devices
 - 🔒 **Read-only mode** - Display content without editing capabilities
@@ -45,7 +46,8 @@ npm install blockmark
             uploadFunction: async (file) => {
                 // Your upload logic here
                 return 'https://example.com/image.jpg';
-            }
+            },
+            required: true // Make the editor required
         });
     </script>
 </body>
@@ -62,7 +64,8 @@ const editor = new BlockmarkEditor('#editor', {
     uploadFunction: async (file) => {
         // Your upload logic here
         return 'https://example.com/image.jpg';
-    }
+    },
+    required: true // Make the editor required
 });
 ```
 
@@ -80,16 +83,21 @@ new BlockmarkEditor(container, options)
 - `options` (Object) - Configuration options
   - `uploadFunction` (Function) - Function to handle image uploads
   - `readOnly` (boolean) - Whether the editor is read-only (default: false)
+  - `required` (boolean) - Whether the editor is required (default: false)
   - `styles` (Object) - Custom styling options
 
 ### Methods
 
 #### `save()`
-Save the editor content as JSON data.
+Save the editor content as JSON data. Throws an error if editor is required but empty.
 
 ```javascript
-const content = editor.save();
-// Returns: [{ type: 'paragraph', content: 'Hello world' }, ...]
+try {
+    const content = editor.save();
+    // Returns: [{ type: 'paragraph', text: [{ text: 'Hello world' }] }, ...]
+} catch (error) {
+    console.error('Save failed:', error.message);
+}
 ```
 
 #### `load(data)`
@@ -97,7 +105,7 @@ Load content into the editor from JSON data.
 
 ```javascript
 editor.load([
-    { type: 'paragraph', content: 'Hello world' },
+    { type: 'paragraph', text: [{ text: 'Hello world' }] },
     { type: 'image', src: 'https://example.com/image.jpg' }
 ]);
 ```
@@ -116,6 +124,30 @@ Set the editor to read-only mode.
 ```javascript
 editor.setReadOnly(true);  // Make read-only
 editor.setReadOnly(false); // Make editable
+```
+
+#### `setRequired(required)`
+Set whether the editor is required.
+
+```javascript
+editor.setRequired(true);  // Make required
+editor.setRequired(false); // Make optional
+```
+
+#### `validate()`
+Check if the editor is valid (has content when required).
+
+```javascript
+const isValid = editor.validate();
+// Returns: true if editor is valid, false otherwise
+```
+
+#### `getValidationError()`
+Get validation error message if editor is invalid.
+
+```javascript
+const error = editor.getValidationError();
+// Returns: error message string or null if valid
 ```
 
 #### `setUploadFunction(uploadFunction)`
@@ -140,7 +172,7 @@ editor.setUploadFunction(async (file) => {
 Add a new block to the editor.
 
 ```javascript
-editor.addBlock('paragraph', { content: 'New paragraph' });
+editor.addBlock('paragraph', { text: [{ text: 'New paragraph' }] });
 editor.addBlock('image', { src: 'https://example.com/image.jpg' }, 0);
 ```
 
@@ -178,7 +210,10 @@ editor.destroy();
 Basic text block with rich text formatting.
 
 ```javascript
-{ type: 'paragraph', content: 'Your text here' }
+{ 
+    type: 'paragraph', 
+    text: [{ text: 'Your text here' }]
+}
 ```
 
 ### List
@@ -214,6 +249,49 @@ YouTube video embeds.
 { type: 'youtube', videoId: 'dQw4w9WgXcQ' }
 ```
 
+## Editor Validation
+
+Blockmark supports editor-level validation. When the editor is marked as required, it must have at least some content before saving.
+
+### Setting Editor as Required
+
+```javascript
+// When creating the editor
+const editor = new BlockmarkEditor('#editor', {
+    required: true
+});
+
+// Or programmatically
+editor.setRequired(true);
+```
+
+### Validation Example
+
+```javascript
+// Check if editor is valid
+if (editor.validate()) {
+    console.log('Editor is valid!');
+    const data = editor.save();
+    // Submit data to server
+} else {
+    const error = editor.getValidationError();
+    console.log('Validation error:', error);
+    // Show error to user
+}
+```
+
+### Save with Validation
+
+```javascript
+try {
+    const data = editor.save();
+    console.log('Save successful:', data);
+} catch (error) {
+    console.error('Save failed:', error.message);
+    // Handle validation error
+}
+```
+
 ## Configuration Examples
 
 ### Custom Image Upload
@@ -236,7 +314,8 @@ const editor = new BlockmarkEditor('#editor', {
         
         const result = await response.json();
         return result.imageUrl;
-    }
+    },
+    required: true
 });
 ```
 
@@ -249,6 +328,26 @@ const editor = new BlockmarkEditor('#editor', {
 
 // Load content for display
 editor.load(savedContent);
+```
+
+### Form with Validation
+
+```javascript
+const editor = new BlockmarkEditor('#editor', {
+    required: true
+});
+
+// Handle form submission
+document.getElementById('submit-btn').addEventListener('click', () => {
+    try {
+        const formData = editor.save();
+        // Submit to server
+        console.log('Form is valid:', formData);
+    } catch (error) {
+        alert('Please add some content to the editor');
+        console.log('Validation error:', error.message);
+    }
+});
 ```
 
 ### Custom Styling
@@ -268,6 +367,13 @@ editor.load(savedContent);
 .bmark-content-area {
     font-family: 'Georgia', serif;
     line-height: 1.8;
+}
+
+/* Custom validation styles */
+.bmark-editor[data-required="true"]:empty::after {
+    content: 'This field is required';
+    color: #dc2626;
+    font-weight: 500;
 }
 ```
 

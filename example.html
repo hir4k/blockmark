@@ -4,26 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockmark Editor Example</title>
-    <link rel="stylesheet" href="dist/blockmark.css">
+    <title>Blockmark Editor - Editor Validation Example</title>
+    <link rel="stylesheet" href="src/styles.css">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: #f8fafc;
+            background-color: #f8fafc;
         }
 
         .container {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .header {
-            background: #1e40af;
+            background: #1e293b;
             color: white;
             padding: 20px;
             text-align: center;
@@ -35,51 +35,96 @@
 
         .controls {
             margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
+            padding: 15px;
             background: #f1f5f9;
-            border-color: #94a3b8;
+            border-radius: 6px;
         }
 
-        .btn.primary {
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .control-group input[type="number"] {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .control-group button {
             background: #3b82f6;
             color: white;
-            border-color: #3b82f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 5px;
         }
 
-        .btn.primary:hover {
+        .control-group button:hover {
             background: #2563eb;
         }
 
-        .output {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
+        .control-group button.danger {
+            background: #ef4444;
         }
 
-        .readonly {
-            opacity: 0.7;
+        .control-group button.danger:hover {
+            background: #dc2626;
+        }
+
+        .control-group button.success {
+            background: #10b981;
+        }
+
+        .control-group button.success:hover {
+            background: #059669;
+        }
+
+        .validation-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .validation-result.valid {
+            background: #f0fdf4;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .validation-result.invalid {
+            background: #fef2f2;
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .error-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .error-list li {
+            margin-bottom: 5px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin: 0;
         }
     </style>
 </head>
@@ -88,113 +133,127 @@
     <div class="container">
         <div class="header">
             <h1>Blockmark Editor</h1>
-            <p>A block-based rich text editor library</p>
+            <p>Editor Validation Example</p>
         </div>
 
         <div class="content">
             <div class="controls">
-                <button class="btn" onclick="saveContent()">Save Content</button>
-                <button class="btn" onclick="loadContent()">Load Content</button>
-                <button class="btn" onclick="getHTML()">Get HTML</button>
-                <button class="btn" onclick="toggleReadOnly()">Toggle Read-only</button>
-                <button class="btn" onclick="clearEditor()">Clear</button>
-                <button class="btn" onclick="addSampleContent()">Add Sample Content</button>
+                <h3>Editor Validation Controls</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="editorRequired" onchange="toggleEditorRequired()">
+                    <label for="editorRequired">Make editor required</label>
+                </div>
+
+                <div class="control-group">
+                    <button onclick="validateEditor()" class="success">Validate Editor</button>
+                    <button onclick="trySave()" class="success">Try Save</button>
+                    <button onclick="clearEditor()" class="danger">Clear Editor</button>
+                </div>
+
+                <div class="control-group">
+                    <button onclick="loadSampleData()">Load Sample Data</button>
+                    <button onclick="saveData()">Save Data</button>
+                    <button onclick="loadData()">Load Data</button>
+                </div>
+
+                <div id="validationResult" class="validation-result" style="display: none;"></div>
             </div>
 
             <div id="editor"></div>
-
-            <div class="output" id="output">Editor output will appear here...</div>
         </div>
     </div>
 
-    <script src="dist/blockmark.umd.js"></script>
+    <script type="module" src="src/index.js"></script>
     <script>
-        // Initialize the editor
-        const editor = new BlockmarkEditor('#editor', {
-            uploadFunction: async (file) => {
-                // Simulate image upload
-                console.log('Uploading file:', file.name);
-
-                // In a real application, you would upload to your server
-                // For demo purposes, we'll return a placeholder URL
-                return new Promise((resolve) => {
-                    setTimeout(() => {
-                        resolve('https://via.placeholder.com/400x300/3b82f6/ffffff?text=Uploaded+Image');
-                    }, 1000);
-                });
-            },
-            title: "Blockmark Editor Demo" // Add a title to the toolbar
+        // Wait for the editor to be ready
+        window.addEventListener('load', () => {
+            // Load some sample data to start with
+            loadSampleData();
         });
 
-        // Sample content for demonstration 
-        const sampleContent = [
-            {
-                "type": "paragraph",
-                "text": [
-                    { "text": "Hello " },
-                    { "text": "World", "bold": true }
-                ]
-            },
-            {
-                "type": "list",
-                "ordered": false,
-                "items": [
-                    [{ "text": "Apple" }],
-                    [{ "text": "Banana", "italic": true }],
-                    [{ "text": "Orange" }]
-                ]
-            },
-            {
-                "type": "paragraph",
-                "text": [
-                    { "text": "This is a " },
-                    { "text": "test", "underline": true },
-                    { "text": " paragraph." }
-                ]
-            }
-        ];
-
-        // Control functions
-        function saveContent() {
-            const content = editor.save();
-            document.getElementById('output').textContent = JSON.stringify(content, null, 2);
+        function toggleEditorRequired() {
+            const isRequired = document.getElementById('editorRequired').checked;
+            window.setEditorRequired(isRequired);
+            console.log(`Editor required: ${isRequired}`);
         }
 
-        function loadContent() {
-            const content = JSON.parse(document.getElementById('output').textContent || '[]');
-            editor.load(content);
-        }
+        function validateEditor() {
+            const isValid = window.validateEditor();
+            const error = window.getValidationError();
 
-        function getHTML() {
-            const html = editor.getHTML();
-            document.getElementById('output').textContent = html;
-        }
+            const resultDiv = document.getElementById('validationResult');
+            resultDiv.style.display = 'block';
 
-        function toggleReadOnly() {
-            const isReadOnly = editor.options.readOnly;
-            editor.setReadOnly(!isReadOnly);
-
-            const btn = event.target;
-            if (!isReadOnly) {
-                btn.textContent = 'Make Editable';
-                btn.classList.add('readonly');
+            if (isValid) {
+                resultDiv.className = 'validation-result valid';
+                resultDiv.innerHTML = '✓ Editor is valid!';
             } else {
-                btn.textContent = 'Toggle Read-only';
-                btn.classList.remove('readonly');
+                resultDiv.className = 'validation-result invalid';
+                resultDiv.innerHTML = `✗ ${error}`;
+            }
+        }
+
+        function trySave() {
+            try {
+                const data = window.blockmarkEditor.save();
+                const resultDiv = document.getElementById('validationResult');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'validation-result valid';
+                resultDiv.innerHTML = '✓ Save successful! Data: ' + JSON.stringify(data).substring(0, 100) + '...';
+                console.log('Saved data:', data);
+            } catch (error) {
+                const resultDiv = document.getElementById('validationResult');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'validation-result invalid';
+                resultDiv.innerHTML = `✗ Save failed: ${error.message}`;
+                console.error('Save error:', error);
             }
         }
 
         function clearEditor() {
-            editor.clear();
-            document.getElementById('output').textContent = 'Editor cleared!';
+            window.blockmarkEditor.load([]);
+            console.log('Editor cleared');
         }
 
-        function addSampleContent() {
-            editor.load(sampleContent);
-            document.getElementById('output').textContent = 'Sample content loaded!';
+        function loadSampleData() {
+            const sampleData = [
+                {
+                    type: 'paragraph',
+                    text: [{ text: 'This is a sample paragraph. Try making the editor required and then clearing it to see validation in action.' }]
+                },
+                {
+                    type: 'paragraph',
+                    text: [{ text: 'Another paragraph with some content.' }]
+                }
+            ];
+
+            window.blockmarkEditor.load(sampleData);
+            console.log('Sample data loaded');
         }
 
+        function saveData() {
+            try {
+                const data = window.blockmarkEditor.save();
+                localStorage.setItem('blockmarkData', JSON.stringify(data));
+                console.log('Data saved to localStorage:', data);
+                alert('Data saved to localStorage!');
+            } catch (error) {
+                alert(`Save failed: ${error.message}`);
+            }
+        }
 
+        function loadData() {
+            const savedData = localStorage.getItem('blockmarkData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                window.blockmarkEditor.load(data);
+                console.log('Data loaded from localStorage:', data);
+                alert('Data loaded from localStorage!');
+            } else {
+                alert('No saved data found in localStorage');
+            }
+        }
     </script>
 </body>
 

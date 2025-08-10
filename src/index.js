@@ -42,3 +42,16 @@ window.setImageUploadFunction = (uploadFunction) => {
 window.updateToolbarTitle = (title) => {
     controller.view.updateToolbarTitle(title);
 };
+
+// Expose validation functions
+window.validateEditor = () => {
+    return controller.validate();
+};
+
+window.getValidationError = () => {
+    return controller.getValidationError();
+};
+
+window.setEditorRequired = (required) => {
+    controller.setRequired(required);
+};
