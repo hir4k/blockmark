@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockMark Example</title>
+    <link rel="stylesheet" href="../dist/bm.css">
+</head>
+
+<body>
+    <div id="editor"></div>
+    <br>
+    <button id="save">Save</button>
+
+    <script src="../dist/bm.js"></script>
+    <script>
+        const editor = new BlockMark("#editor", {
+            title: "My Document",
+            required: true,
+            uploadFunction: async (file) => {
+                const formData = new FormData();
+                formData.append("image", file);
+                const response = await fetch("http://localhost:3001/api/upload-image", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+                return data.url;
+            }
+        });
+
+        document.getElementById("save").addEventListener("click", () => {
+            const data = editor.save();
+            console.log(data);
+        });
+    </script>
+</body>
+
+</html>

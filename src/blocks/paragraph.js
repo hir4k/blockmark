@@ -303,7 +303,6 @@ export class Paragraph {
         return {
             type: 'paragraph',
             text: cleanedData.length > 0 ? cleanedData : [{ text: '' }],
-            required: false // Removed required field
         };
     }
 }

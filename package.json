@@ -1,42 +1,22 @@
 {
   "name": "blockmark",
   "version": "1.0.0",
-  "description": "Block based rich text editor library",
-  "main": "dist/blockmark.umd.js",
-  "module": "dist/blockmark.es.js",
-  "exports": {
-    ".": {
-      "types": "./dist/blockmark.d.ts",
-      "import": "./dist/blockmark.es.js",
-      "require": "./dist/blockmark.umd.js"
-    },
-    "./dist/blockmark.css": "./dist/blockmark.css"
-  },
-  "files": [
-    "dist"
-  ],
+  "description": "A lightweight, block-based rich text editor library for modern web applications.",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "build:lib": "vite build --config vite.lib.config.js",
-    "prepublishOnly": "npm run build:lib"
+    "build": "rollup -c",
+    "server": "node server.js"
   },
-  "keywords": [
-    "rich-text-editor",
-    "block-editor",
-    "wysiwyg",
-    "content-editor",
-    "markdown",
-    "blocks"
-  ],
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "vite": "^6.3.5"
-  },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "multer": "^2.0.2"
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.46.2"
+  },
+  "devDependencies": {
+    "cssnano": "^7.1.0",
+    "postcss": "^8.5.6",
+    "rollup-plugin-postcss": "^4.0.2"
   }
 }

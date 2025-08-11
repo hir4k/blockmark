@@ -1,57 +1,31 @@
 import Controller from "./controller";
 import Model from "./model";
 import View from "./view";
+import "./styles.css";
 
-// Default upload function (you can replace this with your own)
-const defaultUploadFunction = async (file) => {
-    // Example upload function - replace with your implementation
-    const formData = new FormData();
-    formData.append('image', file);
 
-    const response = await fetch('http://localhost:3001/api/upload-image', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+export default class BlockMark {
+    constructor(elementId, options = {}) {
+        this.elementId = elementId;
+        this.controller = new Controller({
+            model: new Model(),
+            view: new View(this.elementId, {
+                uploadFunction: options.uploadFunction,
+                title: options.title,
+                required: options.required,
+            }),
+        });
     }
 
-    const result = await response.json();
-    return result.url || result.imageUrl || result.src;
-};
+    save() {
+        return this.controller.save();
+    }
 
-// Create the editor instance
-const controller = new Controller({
-    model: new Model(),
-    view: new View("#editor", {
-        uploadFunction: defaultUploadFunction,
-        title: "My Document" // Add a title to the toolbar
-    }),
-});
+    load(data) {
+        return this.controller.load(data);
+    }
 
-// Expose the controller globally for save/load functionality
-window.blockmarkEditor = controller;
-
-// Expose a function to update upload function
-window.setImageUploadFunction = (uploadFunction) => {
-    controller.view.uploadFunction = uploadFunction;
-};
-
-// Expose a function to update toolbar title
-window.updateToolbarTitle = (title) => {
-    controller.view.updateToolbarTitle(title);
-};
-
-// Expose validation functions
-window.validateEditor = () => {
-    return controller.validate();
-};
-
-window.getValidationError = () => {
-    return controller.getValidationError();
-};
-
-window.setEditorRequired = (required) => {
-    controller.setRequired(required);
-};
+    setReadOnly(readOnly) {
+        return this.controller.setReadOnly(readOnly);
+    }
+}
